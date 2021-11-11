@@ -2,7 +2,8 @@ package handlers
 
 import (
 	"CQRS-simple/pkg/models"
-	"CQRS-simple/pkg/services"
+	"CQRS-simple/pkg/services/command"
+	"CQRS-simple/pkg/services/queue"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"io/ioutil"
@@ -11,12 +12,14 @@ import (
 )
 
 type UserHandler struct {
-	handler services.ServiceInterface
+	command command.CommandInterface
+	queue   queue.QueueInterface
 }
 
-func NewHandler(service services.ServiceInterface) *UserHandler {
+func NewHandler(c command.CommandInterface, q queue.QueueInterface) *UserHandler {
 	return &UserHandler{
-		handler: service,
+		command: c,
+		queue:   q,
 	}
 }
 
@@ -62,7 +65,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		w.Write(msgJson)
 	}
 
-	res, err := h.handler.Create(user)
+	res, err := h.command.Create(user)
 	if err != nil {
 		msg := "Internal problem" //TODO
 		msgJson, err := json.Marshal(msg)
@@ -93,16 +96,16 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["id"]
 
-	res, _ := h.handler.Get(key)
-	//if err != nil {
-	//	msg := "Internal problem" //TODO
-	//	msgJson, err := json.Marshal(msg)
-	//	if err != nil {
-	//		log.Fatalf("error")
-	//	}
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//	w.Write(msgJson)
-	//}
+	res, err := h.queue.Get(key)
+	if err != nil {
+		msg := "Internal problem" //TODO
+		msgJson, err := json.Marshal(msg)
+		if err != nil {
+			log.Fatalf("error")
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(msgJson)
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(&res)

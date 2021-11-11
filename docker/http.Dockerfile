@@ -10,4 +10,4 @@ RUN go mod download
 # Copy the code into the container
 COPY . .
 
-ENTRYPOINT ["go", "run", "./cmd/main.go"]
+ENTRYPOINT ["go", "run", "./cmd/http/main.go"]

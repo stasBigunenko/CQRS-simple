@@ -49,8 +49,6 @@ func (pdb *PostgresDB) Create(u models.User) (models.User, error) {
 }
 
 func (pdb *PostgresDB) Get(id string) (models.User, error) {
-	pdb.mu.Lock()
-	defer pdb.mu.Unlock()
 
 	var u models.User
 

@@ -1,9 +1,10 @@
 package main
 
 import (
-	"CQRS-simple/cmd/myConfig"
+	"CQRS-simple/cmd/http/myConfig"
 	"CQRS-simple/pkg/handlers"
-	"CQRS-simple/pkg/services"
+	"CQRS-simple/pkg/services/command"
+	"CQRS-simple/pkg/services/queue"
 	"CQRS-simple/pkg/storage/postgreSQL"
 	"context"
 	"github.com/gorilla/mux"
@@ -23,8 +24,9 @@ func main() {
 		}
 	}
 
-	service := services.NewService(db)
-	userRoutes := handlers.NewHandler(&service)
+	command := command.NewCommand(db)
+	queu := queue.NewQueue(db)
+	userRoutes := handlers.NewHandler(&command, &queu)
 
 	r := mux.NewRouter()
 
