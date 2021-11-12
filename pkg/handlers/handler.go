@@ -26,8 +26,10 @@ func NewHandler(c command.CommandInterface, q queue.QueueInterface) *UserHandler
 func (h *UserHandler) Routes(r *mux.Router) *mux.Router {
 	r.HandleFunc("/post/{id}/create", h.CreatePost).Methods("POST")
 	r.HandleFunc("/create", h.CreateUser).Methods("POST")
-	r.HandleFunc("/user/{id}", h.GetUserPosts).Methods("GET")
-	r.HandleFunc("/{id}", h.GetUser).Methods("GET")
+	r.HandleFunc("/user-posts/{id}", h.GetUserPosts).Methods("GET")
+	r.HandleFunc("/user/{id}", h.GetUser).Methods("GET")
+	r.HandleFunc("/post/{id}", h.GetPost).Methods("GET")
+	r.HandleFunc("/", h.GetAllUsers).Methods("GET")
 	return r
 }
 
@@ -101,7 +103,7 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["id"]
 
-	res, err := h.queue.Get(key)
+	res, err := h.queue.GetUser(key)
 	if err != nil {
 		msg := "Internal problem" //TODO
 		msgJson, err := json.Marshal(msg)
@@ -189,6 +191,65 @@ func (h *UserHandler) GetUserPosts(w http.ResponseWriter, r *http.Request) {
 	key := vars["id"]
 
 	res, err := h.queue.UserPosts(key)
+	if err != nil {
+		msg := "Internal problem" //TODO
+		msgJson, err := json.Marshal(msg)
+		if err != nil {
+			log.Fatalf("error")
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(msgJson)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(&res)
+}
+
+func (h *UserHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method != http.MethodGet {
+		msg := "Method Not Allowed" //TODO
+		msgJson, err := json.Marshal(msg)
+		if err != nil {
+			log.Fatalf("error")
+		}
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Write(msgJson)
+		return
+	}
+
+	res, err := h.queue.GetAllUsers()
+	if err != nil {
+		msg := "Internal problem" //TODO
+		msgJson, err := json.Marshal(msg)
+		if err != nil {
+			log.Fatalf("error")
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(msgJson)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(&res)
+}
+
+func (h *UserHandler) GetPost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method != http.MethodGet {
+		msg := "Method Not Allowed" //TODO
+		msgJson, err := json.Marshal(msg)
+		if err != nil {
+			log.Fatalf("error")
+		}
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Write(msgJson)
+		return
+	}
+
+	vars := mux.Vars(r)
+	key := vars["id"]
+
+	res, err := h.queue.GetPost(key)
 	if err != nil {
 		msg := "Internal problem" //TODO
 		msgJson, err := json.Marshal(msg)

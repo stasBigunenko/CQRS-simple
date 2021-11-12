@@ -68,18 +68,19 @@ func (pdb *PostgresDB) CreatePost(p models.Post) (models.Post, error) {
 	return p, nil
 }
 
-func (pdb *PostgresDB) Get(id string) (models.Read, error) {
-
-	var r models.Read
-
-	err := pdb.Pdb.QueryRow(
-		`SELECT userID, name, age, postID, title, message FROM read WHERE userID=$1`, id).Scan(&r.User.ID, &r.User.Name, &r.User.Age, &r.PostRead.ID, &r.PostRead.Title, &r.PostRead.Message)
-	if err != nil {
-		return models.Read{}, errors.New("user doesn't exist")
-	}
-
-	return r, nil
-}
+//
+//func (pdb *PostgresDB) Get(id string) (models.Read, error) {
+//
+//	var r models.Read
+//
+//	err := pdb.Pdb.QueryRow(
+//		`SELECT userID, name, age, postID, title, message FROM read WHERE userID=$1`, id).Scan(&r.User.ID, &r.User.Name, &r.User.Age, &r.PostRead.ID, &r.PostRead.Title, &r.PostRead.Message)
+//	if err != nil {
+//		return models.Read{}, errors.New("user doesn't exist")
+//	}
+//
+//	return r, nil
+//}
 
 func (pdb *PostgresDB) CreateReadInfo(u models.User) error {
 	var r models.Read
@@ -142,4 +143,39 @@ func (pdb *PostgresDB) GetPosts(userID string) ([]models.PostRead, error) {
 	}
 
 	return postsRead, nil
+}
+
+func (pdb *PostgresDB) GetAllUsers() (*[]models.User, error) {
+	pdb.mu.Lock()
+	defer pdb.mu.Unlock()
+
+	rows, err := pdb.Pdb.Query(
+		`SELECT userID, name, age FROM users`)
+	if err != nil {
+		return &[]models.User{}, errors.New("db problems")
+	}
+	defer rows.Close()
+
+	users := []models.User{}
+
+	for rows.Next() {
+		u := models.User{}
+		err = rows.Scan(&u.ID, &u.Name, &u.Age)
+		users = append(users, u)
+	}
+
+	return &users, nil
+}
+
+func (pdb *PostgresDB) GetPost(id string) (models.Post, error) {
+
+	var p models.Post
+
+	err := pdb.Pdb.QueryRow(
+		`SELECT postID, userID, title, message FROM posts WHERE postID=$1`, id).Scan(&p.ID, &p.UserID, &p.Title, &p.Message)
+	if err != nil {
+		return models.Post{}, errors.New("user doesn't exist")
+	}
+
+	return p, nil
 }
