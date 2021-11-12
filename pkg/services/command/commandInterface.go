@@ -3,5 +3,6 @@ package command
 import "CQRS-simple/pkg/models"
 
 type CommandInterface interface {
-	Create(u models.User) (*models.User, error)
+	CreateUser(u models.User) (*models.User, error)
+	CreatePost(p models.Post) (*models.Post, error)
 }
