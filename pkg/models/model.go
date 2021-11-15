@@ -20,7 +20,7 @@ type PostRead struct {
 }
 
 type Read struct {
-	ID       string `json:"ID"`
+	//ID       string `json:"ID"`
 	User     User
 	PostRead PostRead
 }

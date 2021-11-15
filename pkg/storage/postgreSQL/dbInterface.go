@@ -6,6 +6,10 @@ type DBInterface interface {
 	// Write
 	CreateUser(u models.User) (models.User, error) // Table 1
 	CreatePost(p models.Post) (models.Post, error) // Table 2
+	UpdateUser(u models.User) (models.User, error)
+	UpdatePost(p models.Post) (models.Post, error)
+	DeleteUser(id string) error
+	DeletePost(id string) error
 
 	// Read
 	//Get(id string) (models.Read, error)
@@ -15,6 +19,9 @@ type DBInterface interface {
 	GetPosts(userID string) ([]models.PostRead, error)
 
 	// Help
-	AddPostToUserRead(r models.Read) error
 	CreateReadInfo(r models.Read) error
+	DeleteReadUser(id string) error
+	DeleteReadPost(id string) error
+	UpdateReadUser(u models.User) error
+	UpdateReadPost(p models.Post) error
 }

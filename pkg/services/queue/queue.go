@@ -32,7 +32,7 @@ func NewQueue(q postgreSQL.DBInterface) Queue {
 //	return &read, nil
 //}
 
-func (q *Queue) GetUser(id string) (*models.Read, error) {
+func (q *Queue) GetUser(id string) (*models.User, error) {
 
 	_, err := uuid.Parse(id)
 	if err != nil {
@@ -44,10 +44,16 @@ func (q *Queue) GetUser(id string) (*models.Read, error) {
 		return nil, err
 	}
 
-	return &read, nil
+	user := models.User{
+		ID:   read.User.ID,
+		Name: read.User.Name,
+		Age:  read.User.Age,
+	}
+
+	return &user, nil
 }
 
-func (q *Queue) GetPost(id string) (*models.Read, error) {
+func (q *Queue) GetPost(id string) (*models.Post, error) {
 
 	_, err := uuid.Parse(id)
 	if err != nil {
@@ -59,7 +65,14 @@ func (q *Queue) GetPost(id string) (*models.Read, error) {
 		return nil, err
 	}
 
-	return &read, nil
+	post := models.Post{
+		ID:      read.PostRead.ID,
+		UserID:  read.User.ID,
+		Title:   read.PostRead.Title,
+		Message: read.PostRead.Message,
+	}
+
+	return &post, nil
 }
 
 func (q *Queue) UserPosts(userID string) (*models.UserPosts, error) {

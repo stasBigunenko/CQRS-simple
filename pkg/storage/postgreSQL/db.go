@@ -27,7 +27,7 @@ func NewPDB(host string, port string, user string, psw string, dbname string, ss
 
 	database.Pdb.Exec("CREATE TABLE users (\n    userID VARCHAR(40) PRIMARY KEY NOT NULL,\n    name VARCHAR(50) NOT NULL,\n  age INT);")
 	database.Pdb.Exec("CREATE TABLE posts (\n    postID VARCHAR(40) PRIMARY KEY NOT NULL,\n    userID VARCHAR(50) NOT NULL,\n    title VARCHAR(50) NOT NULL\n, message VARCHAR(155));")
-	database.Pdb.Exec("CREATE TABLE read (\n    ID VARCHAR(40) PRIMARY KEY NOT NULL,\n     userID VARCHAR(40) NOT NULL,\n    name VARCHAR(50) NOT NULL,\n  age INT,\n postID VARCHAR(40)\n, title VARCHAR(50) NOT NULL\n, message VARCHAR(155));")
+	database.Pdb.Exec("CREATE TABLE read (\n    userID VARCHAR(40) NOT NULL,\n    name VARCHAR(50) NOT NULL,\n  age INT,\n postID VARCHAR(40)\n, title VARCHAR(50) NOT NULL\n, message VARCHAR(155));")
 
 	return database, nil
 }
@@ -84,10 +84,10 @@ func (pdb *PostgresDB) CreatePost(p models.Post) (models.Post, error) {
 
 func (pdb *PostgresDB) CreateReadInfo(res models.Read) error {
 
-	res.ID = uuid.New().String()
+	//res.ID = uuid.New().String()
 
 	_, err := pdb.Pdb.Exec(
-		"INSERT INTO read (ID, userID, name, age, postID, title, message) VALUES ($1, $2, $3, $4, $5, $6, $7)", res.ID, res.User.ID, res.User.Name, res.User.Age, res.PostRead.ID, res.PostRead.Title, res.PostRead.Message)
+		"INSERT INTO read (userID, name, age, postID, title, message) VALUES ($1, $2, $3, $4, $5, $6)", res.User.ID, res.User.Name, res.User.Age, res.PostRead.ID, res.PostRead.Title, res.PostRead.Message)
 	if err != nil {
 		return errors.New("couldn't create user in database")
 	}
@@ -106,15 +106,6 @@ func (pdb *PostgresDB) GetUserRead(id string) (models.Read, error) {
 	}
 
 	return u, nil
-}
-
-func (pdb *PostgresDB) AddPostToUserRead(r models.Read) error {
-	_, err := pdb.Pdb.Exec(`UPDATE read SET userID=$1, name=$2, age=$3, postID=$4, title=$5, message=$6 WHERE userID=$7`, r.User.ID, r.User.Name, r.User.Age, r.PostRead.ID, r.PostRead.Title, r.PostRead.Message, r.User.ID)
-	if err != nil {
-		return errors.New("couldn't updateuserreadinfo")
-	}
-
-	return nil
 }
 
 func (pdb *PostgresDB) GetPosts(userID string) ([]models.PostRead, error) {
@@ -172,4 +163,152 @@ func (pdb *PostgresDB) GetPostRead(id string) (models.Read, error) {
 	}
 
 	return p, nil
+}
+
+func (pdb *PostgresDB) UpdateUser(u models.User) (models.User, error) {
+	pdb.mu.Lock()
+	defer pdb.mu.Unlock()
+
+	var oldUser models.User
+
+	err := pdb.Pdb.QueryRow(
+		`SELECT name, age FROM users WHERE userID=$1`, u.ID).Scan(&oldUser.Name, &oldUser.Age)
+	if err != nil {
+		return models.User{}, errors.New("couldn't find post")
+	}
+
+	if u.Name == "" {
+		u.Name = oldUser.Name
+	}
+	if u.Age == 0 {
+		u.Age = oldUser.Age
+	}
+
+	_, err = pdb.Pdb.Exec(
+		`UPDATE users SET name=$1, age=$2 WHERE userID=$3`, u.Name, u.Age, u.ID)
+	if err != nil {
+		return models.User{}, errors.New("couldn't update post")
+	}
+
+	return u, nil
+}
+
+func (pdb *PostgresDB) UpdatePost(p models.Post) (models.Post, error) {
+	pdb.mu.Lock()
+	defer pdb.mu.Unlock()
+
+	var oldPost models.Post
+
+	err := pdb.Pdb.QueryRow(
+		`SELECT userID, title, message FROM posts WHERE postID=$1`, p.ID).Scan(&oldPost.UserID, &oldPost.Title, &oldPost.Message)
+	if err != nil {
+		return models.Post{}, errors.New("couldn't find post")
+	}
+
+	if p.UserID == "" {
+		p.UserID = oldPost.UserID
+	}
+	if p.Title == "" {
+		p.Title = oldPost.Title
+	}
+	if p.Message == "" {
+		p.Message = oldPost.Message
+	}
+
+	_, err = pdb.Pdb.Exec(
+		`UPDATE posts SET title=$1, message=$2 WHERE postID=$3`, p.Title, p.Message, p.ID)
+	if err != nil {
+		return models.Post{}, errors.New("couldn't update post")
+	}
+
+	return p, nil
+}
+
+func (pdb *PostgresDB) DeleteUser(id string) error {
+	pdb.mu.Lock()
+	defer pdb.mu.Unlock()
+
+	_, err := pdb.Pdb.Exec(
+		`DELETE FROM users where userID = $1`, id)
+	if err != nil {
+		return errors.New("couldn't delete post")
+	}
+
+	return nil
+}
+
+func (pdb *PostgresDB) DeletePost(id string) error {
+	pdb.mu.Lock()
+	defer pdb.mu.Unlock()
+
+	_, err := pdb.Pdb.Exec(
+		`DELETE FROM posts where postID = $1`, id)
+	if err != nil {
+		return errors.New("couldn't delete post")
+	}
+
+	return nil
+}
+
+func (pdb *PostgresDB) DeleteReadUser(id string) error {
+	pdb.mu.Lock()
+	defer pdb.mu.Unlock()
+
+	_, err := pdb.Pdb.Exec(
+		`DELETE FROM read where userID = $1`, id)
+	if err != nil {
+		return errors.New("couldn't delete post")
+	}
+
+	return nil
+}
+
+func (pdb *PostgresDB) DeleteReadPost(id string) error {
+	pdb.mu.Lock()
+	defer pdb.mu.Unlock()
+
+	_, err := pdb.Pdb.Exec(
+		`DELETE FROM read where postID = $1`, id)
+	if err != nil {
+		return errors.New("couldn't delete post")
+	}
+
+	return nil
+}
+
+func (pdb *PostgresDB) UpdateReadUser(u models.User) error {
+
+	pdb.mu.Lock()
+	defer pdb.mu.Unlock()
+
+	rows, err := pdb.Pdb.Query(
+		`SELECT userID, name, age FROM read WHERE userID=$1`, u.ID)
+	if err != nil {
+		return errors.New("db problems")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		_, err = pdb.Pdb.Exec(
+			`UPDATE read SET name=$1, age=$2 WHERE userID=$3`, u.Name, u.Age, u.ID)
+		if err != nil {
+			return errors.New("couldn't update post")
+		}
+	}
+
+	return nil
+}
+
+func (pdb *PostgresDB) UpdateReadPost(p models.Post) error {
+
+	pdb.mu.Lock()
+	defer pdb.mu.Unlock()
+
+	_, err := pdb.Pdb.Exec(
+		`UPDATE read SET title=$1, message=$2 WHERE postID=$3`, p.Title, p.Message, p.ID)
+	if err != nil {
+		return errors.New("couldn't update post")
+	}
+
+	return nil
 }
