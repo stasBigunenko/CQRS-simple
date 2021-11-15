@@ -27,7 +27,16 @@ func (c *Command) CreateUser(u models.User) (*models.User, error) {
 		return nil, err
 	}
 
-	c.command.CreateReadInfo(userNew)
+	var r models.Read
+
+	r.User.ID = userNew.ID
+	r.User.Name = userNew.Name
+	r.User.Age = userNew.Age
+	r.PostRead.ID = "empty"
+	r.PostRead.Title = "empty"
+	r.PostRead.Message = "empty"
+
+	c.command.CreateReadInfo(r)
 
 	return &userNew, nil
 }
@@ -43,7 +52,13 @@ func (c *Command) CreatePost(p models.Post) (*models.Post, error) {
 		return nil, err
 	}
 
-	user, err := c.command.GetUser(p.UserID)
+	userRead, err := c.command.GetUserRead(p.UserID)
+
+	user := models.User{
+		ID:   userRead.User.ID,
+		Name: userRead.User.Name,
+		Age:  userRead.User.Age,
+	}
 
 	postRead := models.PostRead{
 		ID:      postNew.ID,
@@ -56,27 +71,7 @@ func (c *Command) CreatePost(p models.Post) (*models.Post, error) {
 		PostRead: postRead,
 	}
 
-	c.command.AddPostToUserRead(r)
+	c.command.CreateReadInfo(r)
 
 	return &postNew, nil
 }
-
-//func (c *Command ) UserPosts (userID string) (*models.UserPosts, error) {
-//
-//	user, err := c.command.GetUser(userID)
-//	if err != nil {
-//		return &models.UserPosts{}, err
-//	}
-//
-//	postsRead, err := c.command.GetPosts(userID)
-//	if err != nil {
-//		return &models.UserPosts{}, err
-//	}
-//
-//	userPosts := models.UserPosts{
-//		user,
-//		postsRead,
-//	}
-//
-//	return &userPosts, nil
-//}

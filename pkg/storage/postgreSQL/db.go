@@ -27,7 +27,7 @@ func NewPDB(host string, port string, user string, psw string, dbname string, ss
 
 	database.Pdb.Exec("CREATE TABLE users (\n    userID VARCHAR(40) PRIMARY KEY NOT NULL,\n    name VARCHAR(50) NOT NULL,\n  age INT);")
 	database.Pdb.Exec("CREATE TABLE posts (\n    postID VARCHAR(40) PRIMARY KEY NOT NULL,\n    userID VARCHAR(50) NOT NULL,\n    title VARCHAR(50) NOT NULL\n, message VARCHAR(155));")
-	database.Pdb.Exec("CREATE TABLE read (\n    userID VARCHAR(40) NOT NULL,\n    name VARCHAR(50) NOT NULL,\n  age INT,\n postID VARCHAR(40)\n, title VARCHAR(50) NOT NULL\n, message VARCHAR(155));")
+	database.Pdb.Exec("CREATE TABLE read (\n    ID VARCHAR(40) PRIMARY KEY NOT NULL,\n     userID VARCHAR(40) NOT NULL,\n    name VARCHAR(50) NOT NULL,\n  age INT,\n postID VARCHAR(40)\n, title VARCHAR(50) NOT NULL\n, message VARCHAR(155));")
 
 	return database, nil
 }
@@ -82,18 +82,12 @@ func (pdb *PostgresDB) CreatePost(p models.Post) (models.Post, error) {
 //	return r, nil
 //}
 
-func (pdb *PostgresDB) CreateReadInfo(u models.User) error {
-	var r models.Read
+func (pdb *PostgresDB) CreateReadInfo(res models.Read) error {
 
-	r.User.ID = u.ID
-	r.User.Name = u.Name
-	r.User.Age = u.Age
-	r.PostRead.ID = "empty"
-	r.PostRead.Title = "empty"
-	r.PostRead.Message = "empty"
+	res.ID = uuid.New().String()
 
 	_, err := pdb.Pdb.Exec(
-		"INSERT INTO read (userID, name, age, postID, title, message) VALUES ($1, $2, $3, $4, $5, $6)", r.User.ID, r.User.Name, r.User.Age, r.PostRead.ID, r.PostRead.Title, r.PostRead.Message)
+		"INSERT INTO read (ID, userID, name, age, postID, title, message) VALUES ($1, $2, $3, $4, $5, $6, $7)", res.ID, res.User.ID, res.User.Name, res.User.Age, res.PostRead.ID, res.PostRead.Title, res.PostRead.Message)
 	if err != nil {
 		return errors.New("couldn't create user in database")
 	}
@@ -101,14 +95,14 @@ func (pdb *PostgresDB) CreateReadInfo(u models.User) error {
 	return nil
 }
 
-func (pdb *PostgresDB) GetUser(id string) (models.User, error) {
+func (pdb *PostgresDB) GetUserRead(id string) (models.Read, error) {
 
-	var u models.User
+	var u models.Read
 
 	err := pdb.Pdb.QueryRow(
-		`SELECT userID, name, age FROM users WHERE userID=$1`, id).Scan(&u.ID, &u.Name, &u.Age)
+		`SELECT userID, name, age FROM read WHERE userID=$1`, id).Scan(&u.User.ID, &u.User.Name, &u.User.Age)
 	if err != nil {
-		return models.User{}, errors.New("user doesn't exist")
+		return models.Read{}, errors.New("user doesn't exist")
 	}
 
 	return u, nil
@@ -167,14 +161,14 @@ func (pdb *PostgresDB) GetAllUsers() (*[]models.User, error) {
 	return &users, nil
 }
 
-func (pdb *PostgresDB) GetPost(id string) (models.Post, error) {
+func (pdb *PostgresDB) GetPostRead(id string) (models.Read, error) {
 
-	var p models.Post
+	var p models.Read
 
 	err := pdb.Pdb.QueryRow(
-		`SELECT postID, userID, title, message FROM posts WHERE postID=$1`, id).Scan(&p.ID, &p.UserID, &p.Title, &p.Message)
+		`SELECT postID, userID, title, message FROM read WHERE postID=$1`, id).Scan(&p.PostRead.ID, &p.User.ID, &p.PostRead.Title, &p.PostRead.Message)
 	if err != nil {
-		return models.Post{}, errors.New("user doesn't exist")
+		return models.Read{}, errors.New("user doesn't exist")
 	}
 
 	return p, nil

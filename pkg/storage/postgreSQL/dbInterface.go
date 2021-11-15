@@ -9,12 +9,12 @@ type DBInterface interface {
 
 	// Read
 	//Get(id string) (models.Read, error)
-	GetUser(id string) (models.User, error)
-	GetPost(id string) (models.Post, error)
+	GetUserRead(id string) (models.Read, error)
+	GetPostRead(id string) (models.Read, error)
 	GetAllUsers() (*[]models.User, error)
 	GetPosts(userID string) ([]models.PostRead, error)
 
 	// Help
 	AddPostToUserRead(r models.Read) error
-	CreateReadInfo(r models.User) error
+	CreateReadInfo(r models.Read) error
 }

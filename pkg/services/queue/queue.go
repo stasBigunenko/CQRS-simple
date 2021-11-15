@@ -32,14 +32,14 @@ func NewQueue(q postgreSQL.DBInterface) Queue {
 //	return &read, nil
 //}
 
-func (q *Queue) GetUser(id string) (*models.User, error) {
+func (q *Queue) GetUser(id string) (*models.Read, error) {
 
 	_, err := uuid.Parse(id)
 	if err != nil {
 		return nil, errors.New("service: couldn't parse id")
 	}
 
-	read, err := q.queue.GetUser(id)
+	read, err := q.queue.GetUserRead(id)
 	if err != nil {
 		return nil, err
 	}
@@ -47,14 +47,14 @@ func (q *Queue) GetUser(id string) (*models.User, error) {
 	return &read, nil
 }
 
-func (q *Queue) GetPost(id string) (*models.Post, error) {
+func (q *Queue) GetPost(id string) (*models.Read, error) {
 
 	_, err := uuid.Parse(id)
 	if err != nil {
 		return nil, errors.New("service: couldn't parse id")
 	}
 
-	read, err := q.queue.GetPost(id)
+	read, err := q.queue.GetPostRead(id)
 	if err != nil {
 		return nil, err
 	}
@@ -64,9 +64,15 @@ func (q *Queue) GetPost(id string) (*models.Post, error) {
 
 func (q *Queue) UserPosts(userID string) (*models.UserPosts, error) {
 
-	user, err := q.queue.GetUser(userID)
+	userRead, err := q.queue.GetUserRead(userID)
 	if err != nil {
 		return &models.UserPosts{}, err
+	}
+
+	user := models.User{
+		ID:   userRead.User.ID,
+		Name: userRead.User.Name,
+		Age:  userRead.User.Age,
 	}
 
 	postsRead, err := q.queue.GetPosts(userID)
