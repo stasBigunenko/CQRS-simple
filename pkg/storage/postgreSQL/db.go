@@ -27,7 +27,7 @@ func NewPDB(host string, port string, user string, psw string, dbname string, ss
 
 	database.Pdb.Exec("CREATE TABLE users (\n    userID VARCHAR(40) PRIMARY KEY NOT NULL,\n    name VARCHAR(50) NOT NULL,\n  age INT);")
 	database.Pdb.Exec("CREATE TABLE posts (\n    postID VARCHAR(40) PRIMARY KEY NOT NULL,\n    userID VARCHAR(50) NOT NULL,\n    title VARCHAR(50) NOT NULL\n, message VARCHAR(155));")
-	database.Pdb.Exec("CREATE TABLE read (\n    userID VARCHAR(40) NOT NULL,\n    name VARCHAR(50) NOT NULL,\n  age INT,\n postID VARCHAR(40)\n, title VARCHAR(50) NOT NULL\n, message VARCHAR(155));")
+	//database.Pdb.Exec("CREATE TABLE read (\n    userID VARCHAR(40) NOT NULL,\n    name VARCHAR(50) NOT NULL,\n  age INT,\n postID VARCHAR(40)\n, title VARCHAR(50) NOT NULL\n, message VARCHAR(155));")
 
 	return database, nil
 }
@@ -311,4 +311,17 @@ func (pdb *PostgresDB) UpdateReadPost(p models.Post) error {
 	}
 
 	return nil
+}
+
+func (pdb *PostgresDB) GetUser(id string) (models.Read, error) {
+
+	var u models.Read
+
+	err := pdb.Pdb.QueryRow(
+		`SELECT userID, name, age FROM users WHERE userID=$1`, id).Scan(&u.User.ID, &u.User.Name, &u.User.Age)
+	if err != nil {
+		return models.Read{}, errors.New("user doesn't exist")
+	}
+
+	return u, nil
 }

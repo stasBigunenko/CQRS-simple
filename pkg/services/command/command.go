@@ -2,17 +2,20 @@ package command
 
 import (
 	"CQRS-simple/pkg/models"
+	"CQRS-simple/pkg/storage/inMemory"
 	"CQRS-simple/pkg/storage/postgreSQL"
 	"errors"
 )
 
 type Command struct {
 	command postgreSQL.DBInterface
+	storage inMemory.InMemoryInterface
 }
 
-func NewCommand(c postgreSQL.DBInterface) Command {
+func NewCommand(c postgreSQL.DBInterface, s inMemory.InMemoryInterface) Command {
 	return Command{
 		command: c,
+		storage: s,
 	}
 }
 
@@ -36,7 +39,8 @@ func (c *Command) CreateUser(u models.User) (*models.User, error) {
 	r.PostRead.Title = "empty"
 	r.PostRead.Message = "empty"
 
-	c.command.CreateReadInfo(r)
+	//c.command.CreateReadInfo(r)
+	c.storage.CreateUser(r)
 
 	return &userNew, nil
 }
@@ -52,7 +56,8 @@ func (c *Command) CreatePost(p models.Post) (*models.Post, error) {
 		return nil, err
 	}
 
-	userRead, err := c.command.GetUserRead(p.UserID)
+	//userRead, err := c.command.GetUserRead(p.UserID)
+	userRead, err := c.command.GetUser(p.UserID)
 
 	user := models.User{
 		ID:   userRead.User.ID,
@@ -71,7 +76,8 @@ func (c *Command) CreatePost(p models.Post) (*models.Post, error) {
 		PostRead: postRead,
 	}
 
-	c.command.CreateReadInfo(r)
+	//c.command.CreateReadInfo(r)
+	c.storage.CreatePost(r)
 
 	return &postNew, nil
 }

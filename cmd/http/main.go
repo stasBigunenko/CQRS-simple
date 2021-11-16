@@ -5,6 +5,7 @@ import (
 	"CQRS-simple/pkg/handlers"
 	"CQRS-simple/pkg/services/command"
 	"CQRS-simple/pkg/services/queue"
+	"CQRS-simple/pkg/storage/inMemory"
 	"CQRS-simple/pkg/storage/postgreSQL"
 	"context"
 	"github.com/gorilla/mux"
@@ -17,6 +18,8 @@ import (
 func main() {
 	config := myConfig.SetConfig()
 
+	storage := inMemory.NewInMemory()
+
 	db, err := postgreSQL.NewPDB(config.PostgresHost, config.PostgresPort, config.PostgresUser, config.PostgresPsw, config.PostgresDB, config.PostgresSSL)
 	if err != nil {
 		if err != nil {
@@ -24,8 +27,8 @@ func main() {
 		}
 	}
 
-	command := command.NewCommand(db)
-	queu := queue.NewQueue(db)
+	command := command.NewCommand(db, storage)
+	queu := queue.NewQueue(db, storage)
 	userRoutes := handlers.NewHandler(&command, &queu)
 
 	r := mux.NewRouter()

@@ -19,6 +19,7 @@ type DBInterface interface {
 	GetPosts(userID string) ([]models.PostRead, error)
 
 	// Help
+	GetUser(id string) (models.Read, error)
 	CreateReadInfo(r models.Read) error
 	DeleteReadUser(id string) error
 	DeleteReadPost(id string) error

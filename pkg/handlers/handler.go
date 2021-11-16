@@ -31,8 +31,8 @@ func (h *UserHandler) Routes(r *mux.Router) *mux.Router {
 	r.HandleFunc("/user-posts/{id}", h.GetUserPosts).Methods("GET")
 	r.HandleFunc("/delete-user/{id}", h.DeleteUser).Methods("DELETE")
 	r.HandleFunc("/delete-post/{id}", h.DeletePost).Methods("DELETE")
-	r.HandleFunc("/user/{id}", h.GetUser).Methods("GET")
-	r.HandleFunc("/post/{id}", h.GetPost).Methods("GET")
+	//r.HandleFunc("/user/{id}", h.GetUser).Methods("GET")
+	//r.HandleFunc("/post/{id}", h.GetPost).Methods("GET")
 	r.HandleFunc("/", h.GetAllUsers).Methods("GET")
 	return r
 }
@@ -91,37 +91,37 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&res)
 }
 
-func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	if r.Method != http.MethodGet {
-		msg := "Method Not Allowed" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write(msgJson)
-		return
-	}
-
-	vars := mux.Vars(r)
-	key := vars["id"]
-
-	res, err := h.queue.GetUser(key)
-	if err != nil {
-		msg := "Internal problem" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(msgJson)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(&res)
-}
+//func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
+//	w.Header().Set("Content-Type", "application/json")
+//	if r.Method != http.MethodGet {
+//		msg := "Method Not Allowed" //TODO
+//		msgJson, err := json.Marshal(msg)
+//		if err != nil {
+//			log.Fatalf("error")
+//		}
+//		w.WriteHeader(http.StatusMethodNotAllowed)
+//		w.Write(msgJson)
+//		return
+//	}
+//
+//	vars := mux.Vars(r)
+//	key := vars["id"]
+//
+//	res, err := h.queue.GetUser(key)
+//	if err != nil {
+//		msg := "Internal problem" //TODO
+//		msgJson, err := json.Marshal(msg)
+//		if err != nil {
+//			log.Fatalf("error")
+//		}
+//		w.WriteHeader(http.StatusInternalServerError)
+//		w.Write(msgJson)
+//		return
+//	}
+//
+//	w.WriteHeader(http.StatusOK)
+//	json.NewEncoder(w).Encode(&res)
+//}
 
 func (h *UserHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -238,37 +238,37 @@ func (h *UserHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&res)
 }
 
-func (h *UserHandler) GetPost(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	if r.Method != http.MethodGet {
-		msg := "Method Not Allowed" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write(msgJson)
-		return
-	}
-
-	vars := mux.Vars(r)
-	key := vars["id"]
-
-	res, err := h.queue.GetPost(key)
-	if err != nil {
-		msg := "Internal problem" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(msgJson)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(&res)
-}
+//func (h *UserHandler) GetPost(w http.ResponseWriter, r *http.Request) {
+//	w.Header().Set("Content-Type", "application/json")
+//	if r.Method != http.MethodGet {
+//		msg := "Method Not Allowed" //TODO
+//		msgJson, err := json.Marshal(msg)
+//		if err != nil {
+//			log.Fatalf("error")
+//		}
+//		w.WriteHeader(http.StatusMethodNotAllowed)
+//		w.Write(msgJson)
+//		return
+//	}
+//
+//	vars := mux.Vars(r)
+//	key := vars["id"]
+//
+//	res, err := h.queue.GetPost(key)
+//	if err != nil {
+//		msg := "Internal problem" //TODO
+//		msgJson, err := json.Marshal(msg)
+//		if err != nil {
+//			log.Fatalf("error")
+//		}
+//		w.WriteHeader(http.StatusInternalServerError)
+//		w.Write(msgJson)
+//		return
+//	}
+//
+//	w.WriteHeader(http.StatusOK)
+//	json.NewEncoder(w).Encode(&res)
+//}
 
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
