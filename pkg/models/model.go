@@ -19,13 +19,12 @@ type PostRead struct {
 	Message string `json:"message"`
 }
 
-type Read struct {
-	//ID       string `json:"ID"`
-	User     User
-	PostRead PostRead
-}
-
 type UserPosts struct {
 	User  User
 	Posts []PostRead
+}
+
+type Read struct {
+	User     User
+	PostRead PostRead
 }

@@ -3,9 +3,10 @@ package myConfig
 import "os"
 
 type Config struct {
+	// Hhtp connection
 	PortHTTP string
 
-	//postgres
+	// Postgres
 	PostgresHost string
 	PostgresPort string
 	PostgresUser string
@@ -13,7 +14,7 @@ type Config struct {
 	PostgresDB   string
 	PostgresSSL  string
 
-	//redis
+	// Redis
 	RedisAddr string
 	RedisDB   string
 }

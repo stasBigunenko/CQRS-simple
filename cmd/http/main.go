@@ -18,10 +18,12 @@ import (
 func main() {
 	config := myConfig.SetConfig()
 
-	//storage := inMemory.NewInMemory()
+	//storage := inMemory.NewInMemory() Could be as storage for read data
 
+	// create connectrion with redis storage
 	storage := redis.NewRedisDB(config.RedisAddr, config.RedisDB)
 
+	// create connection with postgreSQL storage
 	db, err := postgreSQL.NewPDB(config.PostgresHost, config.PostgresPort, config.PostgresUser, config.PostgresPsw, config.PostgresDB, config.PostgresSSL)
 	if err != nil {
 		if err != nil {
@@ -29,14 +31,18 @@ func main() {
 		}
 	}
 
+	// interface of write functions
 	command := command.NewCommand(db, storage)
+	// interface for read functions
 	queu := queue.NewQueue(db, storage)
+	// create handler
 	userRoutes := handlers.NewHandler(&command, &queu)
 
 	r := mux.NewRouter()
 
 	router := userRoutes.Routes(r)
 
+	// http server config
 	srv := http.Server{
 		Addr:    config.PortHTTP,
 		Handler: router,

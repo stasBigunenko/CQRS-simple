@@ -40,7 +40,7 @@ func (c *Command) CreateUser(u models.User) (*models.User, error) {
 	r.PostRead.Title = "empty"
 	r.PostRead.Message = "empty"
 
-	//c.command.CreateReadInfo(r)
+	//c.command.CreateReadInfo(r) function for inMemory Storage
 	c.storage.CreateUser(r)
 
 	return &userNew, nil
@@ -57,7 +57,7 @@ func (c *Command) CreatePost(p models.Post) (*models.Post, error) {
 		return nil, err
 	}
 
-	//userRead, err := c.command.GetUserRead(p.UserID)
+	//userRead, err := c.command.GetUserRead(p.UserID) function for inMemory Storage
 	userRead, err := c.command.GetUser(p.UserID)
 
 	user := models.User{
@@ -77,7 +77,7 @@ func (c *Command) CreatePost(p models.Post) (*models.Post, error) {
 		PostRead: postRead,
 	}
 
-	//c.command.CreateReadInfo(r)
+	//c.command.CreateReadInfo(r) function for inMemory Storage
 	c.storage.CreatePost(r)
 
 	return &postNew, nil
@@ -90,14 +90,7 @@ func (c *Command) UpdateUser(u models.User) (*models.User, error) {
 		return &models.User{}, err
 	}
 
-	//userRead, err := c.command.GetUserRead(u.ID)
-	//
-	//userRead.User.ID = u.ID
-	//userRead.User.Name = userNew.Name
-	//userRead.User.Age = userNew.Age
-
-	//c.command.CreateReadInfo(userRead)
-	//c.command.UpdateReadUser(userNew)
+	//c.command.UpdateReadUser(userNew) function for inMemory Storage
 	c.storage.UpdateUser(userNew)
 
 	return &userNew, nil
@@ -110,27 +103,7 @@ func (c *Command) UpdatePost(p models.Post) (*models.Post, error) {
 		return nil, err
 	}
 
-	//userRead, err := c.command.GetUserRead(p.UserID)
-	//
-	//user := models.User{
-	//	ID:   userRead.User.ID,
-	//	Name: userRead.User.Name,
-	//	Age:  userRead.User.Age,
-	//}
-	//
-	//postRead := models.PostRead{
-	//	ID:      postNew.ID,
-	//	Title:   postNew.Title,
-	//	Message: postNew.Message,
-	//}
-	//
-	//r := models.Read{
-	//	User:     user,
-	//	PostRead: postRead,
-	//}
-
-	//c.command.CreateReadInfo(r)
-	//c.command.UpdateReadPost(postNew)
+	//c.command.UpdateReadPost(postNew) function for inMemory Storage
 	c.storage.UpdatePost(postNew)
 
 	return &postNew, nil
@@ -142,7 +115,7 @@ func (c *Command) DeleteUser(id string) error {
 		return err
 	}
 
-	//err = c.command.DeleteReadUser(id)
+	//err = c.command.DeleteReadUser(id) function for inMemory Storage
 	//if err != nil {
 	//	return err
 	//}
@@ -164,7 +137,7 @@ func (c *Command) DeletePost(id string) error {
 		return err
 	}
 
-	//err = c.command.DeleteReadPost(id)
+	//err = c.command.DeleteReadPost(id) function for inMemory Storage
 	//if err != nil {
 	//	return err
 	//}

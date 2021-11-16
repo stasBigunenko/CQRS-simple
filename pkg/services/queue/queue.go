@@ -18,6 +18,26 @@ func NewQueue(q postgreSQL.DBInterface, s inMemory.InMemoryInterface) Queue {
 	}
 }
 
+func (q *Queue) GetAllUsers() (*[]models.User, error) {
+
+	users, err := q.storage.GetAllUsers()
+	if err != nil {
+		return &[]models.User{}, err
+	}
+
+	return users, nil
+}
+
+func (q *Queue) UserPosts(userID string) (*models.UserPosts, error) {
+	postRead, err := q.storage.GetUserPosts(userID)
+	if err != nil {
+		return &models.UserPosts{}, err
+	}
+
+	return postRead, nil
+}
+
+//functions for inMemory storage
 //func (q *Queue) Get(id string) (*models.Read, error) {
 //
 //	_, err := uuid.Parse(id)
@@ -111,22 +131,3 @@ func NewQueue(q postgreSQL.DBInterface, s inMemory.InMemoryInterface) Queue {
 //
 //	return users, nil
 //}
-
-func (q *Queue) GetAllUsers() (*[]models.User, error) {
-
-	users, err := q.storage.GetAllUsers()
-	if err != nil {
-		return &[]models.User{}, err
-	}
-
-	return users, nil
-}
-
-func (q *Queue) UserPosts(userID string) (*models.UserPosts, error) {
-	postRead, err := q.storage.GetUserPosts(userID)
-	if err != nil {
-		return &models.UserPosts{}, err
-	}
-
-	return postRead, nil
-}
