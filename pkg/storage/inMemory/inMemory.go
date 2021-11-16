@@ -72,3 +72,83 @@ func (i *InMemory) GetUserPosts(id string) (*models.UserPosts, error) {
 
 	return &up, nil
 }
+
+func (i *InMemory) UpdateUser(u models.User) error {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+
+	up, ok := i.storage[u.ID]
+	if !ok {
+		return errors.New("user not found")
+	}
+
+	up.User = u
+
+	i.storage[u.ID] = up
+
+	return nil
+}
+
+func (i *InMemory) UpdatePost(p models.Post) error {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+
+	up, ok := i.storage[p.UserID]
+	if !ok {
+		return errors.New("user with this post not found")
+	}
+
+	for i, val := range up.Posts {
+		if val.ID == p.ID {
+			up.Posts[i].Title = p.Title
+			up.Posts[i].Message = p.Message
+		}
+	}
+
+	i.storage[p.UserID] = up
+
+	return nil
+}
+
+func (i *InMemory) DeleteUser(id string) error {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+
+	_, ok := i.storage[id]
+	if !ok {
+		return errors.New("post can't be deleted - Id not found")
+	}
+
+	delete(i.storage, id)
+
+	return nil
+}
+
+func (i *InMemory) DeletePost(id, userID string) error {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+
+	up, ok := i.storage[userID]
+	if !ok {
+		return errors.New("post can't be deleted - user not found")
+	}
+
+	for i, val := range up.Posts {
+		if val.ID == id {
+			if len(up.Posts)-1 == 0 {
+				up.Posts = up.Posts[:0]
+				break
+			} else if i < len(up.Posts)-1 {
+				up.Posts = append(up.Posts[:i], up.Posts[i+1:]...)
+				break
+			} else {
+				up.Posts = append(up.Posts[:i])
+				break
+			}
+		}
+	}
+
+	i.storage[userID] = up
+
+	return nil
+}

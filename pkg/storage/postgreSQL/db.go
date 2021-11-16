@@ -152,12 +152,25 @@ func (pdb *PostgresDB) GetAllUsers() (*[]models.User, error) {
 	return &users, nil
 }
 
+//func (pdb *PostgresDB) GetPostRead(id string) (models.Read, error) {
+//
+//	var p models.Read
+//
+//	err := pdb.Pdb.QueryRow(
+//		`SELECT postID, userID, title, message FROM read WHERE postID=$1`, id).Scan(&p.PostRead.ID, &p.User.ID, &p.PostRead.Title, &p.PostRead.Message)
+//	if err != nil {
+//		return models.Read{}, errors.New("user doesn't exist")
+//	}
+//
+//	return p, nil
+//}
+
 func (pdb *PostgresDB) GetPostRead(id string) (models.Read, error) {
 
 	var p models.Read
 
 	err := pdb.Pdb.QueryRow(
-		`SELECT postID, userID, title, message FROM read WHERE postID=$1`, id).Scan(&p.PostRead.ID, &p.User.ID, &p.PostRead.Title, &p.PostRead.Message)
+		`SELECT postID, userID, title, message FROM posts WHERE postID=$1`, id).Scan(&p.PostRead.ID, &p.User.ID, &p.PostRead.Title, &p.PostRead.Message)
 	if err != nil {
 		return models.Read{}, errors.New("user doesn't exist")
 	}

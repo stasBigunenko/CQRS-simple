@@ -5,6 +5,7 @@ import (
 	"CQRS-simple/pkg/storage/inMemory"
 	"CQRS-simple/pkg/storage/postgreSQL"
 	"errors"
+	"github.com/google/uuid"
 )
 
 type Command struct {
@@ -96,7 +97,8 @@ func (c *Command) UpdateUser(u models.User) (*models.User, error) {
 	//userRead.User.Age = userNew.Age
 
 	//c.command.CreateReadInfo(userRead)
-	c.command.UpdateReadUser(userNew)
+	//c.command.UpdateReadUser(userNew)
+	c.storage.UpdateUser(userNew)
 
 	return &userNew, nil
 }
@@ -128,7 +130,8 @@ func (c *Command) UpdatePost(p models.Post) (*models.Post, error) {
 	//}
 
 	//c.command.CreateReadInfo(r)
-	c.command.UpdateReadPost(postNew)
+	//c.command.UpdateReadPost(postNew)
+	c.storage.UpdatePost(postNew)
 
 	return &postNew, nil
 }
@@ -139,7 +142,36 @@ func (c *Command) DeleteUser(id string) error {
 		return err
 	}
 
-	err = c.command.DeleteReadUser(id)
+	//err = c.command.DeleteReadUser(id)
+	//if err != nil {
+	//	return err
+	//}
+
+	err = c.storage.DeleteUser(id)
+
+	return nil
+}
+
+func (c *Command) DeletePost(id string) error {
+
+	mp, err := c.GetPost(id)
+	if err != nil {
+		return err
+	}
+
+	err = c.command.DeletePost(id)
+	if err != nil {
+		return err
+	}
+
+	//err = c.command.DeleteReadPost(id)
+	//if err != nil {
+	//	return err
+	//}
+
+	userID := mp.UserID
+
+	err = c.storage.DeletePost(id, userID)
 	if err != nil {
 		return err
 	}
@@ -147,16 +179,24 @@ func (c *Command) DeleteUser(id string) error {
 	return nil
 }
 
-func (c *Command) DeletePost(id string) error {
-	err := c.command.DeletePost(id)
+func (c *Command) GetPost(id string) (*models.Post, error) {
+
+	_, err := uuid.Parse(id)
 	if err != nil {
-		return err
+		return nil, errors.New("service: couldn't parse id")
 	}
 
-	err = c.command.DeleteReadPost(id)
+	read, err := c.command.GetPostRead(id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	post := models.Post{
+		ID:      read.PostRead.ID,
+		UserID:  read.User.ID,
+		Title:   read.PostRead.Title,
+		Message: read.PostRead.Message,
+	}
+
+	return &post, nil
 }
