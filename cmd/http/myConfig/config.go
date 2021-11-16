@@ -12,6 +12,10 @@ type Config struct {
 	PostgresPsw  string
 	PostgresDB   string
 	PostgresSSL  string
+
+	//redis
+	RedisAddr string
+	RedisDB   string
 }
 
 func SetConfig() *Config {
@@ -52,6 +56,16 @@ func SetConfig() *Config {
 		config.PostgresSSL = "disable"
 	}
 
+	config.RedisAddr = os.Getenv("REDIS_ADDR")
+	if config.RedisAddr == "" {
+		config.RedisAddr = "127.0.0.1:6379"
+	}
+
+	config.RedisDB = os.Getenv("REDIS_DB")
+	if config.RedisDB == "" {
+		config.RedisDB = "redisDB"
+	}
+
 	return &Config{
 		PortHTTP: config.PortHTTP,
 
@@ -61,5 +75,8 @@ func SetConfig() *Config {
 		PostgresPsw:  config.PostgresPsw,
 		PostgresDB:   config.PostgresDB,
 		PostgresSSL:  config.PostgresSSL,
+
+		RedisAddr: config.RedisAddr,
+		RedisDB:   config.RedisDB,
 	}
 }

@@ -5,8 +5,8 @@ import (
 	"CQRS-simple/pkg/handlers"
 	"CQRS-simple/pkg/services/command"
 	"CQRS-simple/pkg/services/queue"
-	"CQRS-simple/pkg/storage/inMemory"
 	"CQRS-simple/pkg/storage/postgreSQL"
+	"CQRS-simple/pkg/storage/redis"
 	"context"
 	"github.com/gorilla/mux"
 	"log"
@@ -18,7 +18,9 @@ import (
 func main() {
 	config := myConfig.SetConfig()
 
-	storage := inMemory.NewInMemory()
+	//storage := inMemory.NewInMemory()
+
+	storage := redis.NewRedisDB(config.RedisAddr, config.RedisDB)
 
 	db, err := postgreSQL.NewPDB(config.PostgresHost, config.PostgresPort, config.PostgresUser, config.PostgresPsw, config.PostgresDB, config.PostgresSSL)
 	if err != nil {
