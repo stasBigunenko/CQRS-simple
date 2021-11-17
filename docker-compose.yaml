@@ -16,11 +16,11 @@ services:
       POSTGRES_SSL: "disable"
       REDIS_ADDR: "redis:6379"
       REDIS_DB: "redisDB"
-#      RMQ_PATH: "rabbitmq-broker:5672/"
-#      RMQ_LOG: "guest"
-#      RMQ_PASS: "guest"
-#    depends_on:
-#      - rabbitmq-broker
+      RMQ_PATH: "rabbitmq-broker:5672/"
+      RMQ_LOG: "guest"
+      RMQ_PASS: "guest"
+    depends_on:
+      - rabbitmq-broker
 #      - postgres
 
   postgres:
@@ -40,3 +40,39 @@ services:
   redis:
     container_name: "redis"
     image: redis
+
+  rabbitmq-broker:
+    image: rabbitmq:management-alpine
+    container_name: "rabbitmq-broker"
+    hostname: rabbitmq-broker
+    ports:
+      - 5672:5672 # for sender and consumer connections
+      - 15672:15672
+    volumes:
+      - ./pkg/rabbitMQ/data/:/var/lib/rabbitmq
+      - ./pkg/rabbitMQ/log/:/var/log/rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_DEFAULT_USER: "guest"
+    #      RABBITMQ_DEFAULT_VHOST: "/"
+
+  consumer:
+    build:
+      context: "./"
+      dockerfile: "./docker/dbConsumer.Dockerfile"
+    depends_on:
+      - rabbitmq-broker
+    #      - http
+    environment:
+      RMQ_PATH: "rabbitmq-broker:5672/"
+      RMQ_LOG: "guest"
+      RMQ_PASS: "guest"
+      POSTGRES_HOST: "postgres"
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "qwerty"
+      POSTGRES_DB: "postgres"
+      POSTGRES_SSL: "disable"
+      REDIS_ADDR: "redis:6379"
+    restart: on-failure

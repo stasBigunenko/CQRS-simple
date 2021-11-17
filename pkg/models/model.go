@@ -28,3 +28,10 @@ type Read struct {
 	User     User
 	PostRead PostRead
 }
+
+type Cud struct {
+	Model   string
+	Command string
+	User    User
+	Post    Post
+}

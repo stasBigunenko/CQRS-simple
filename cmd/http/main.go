@@ -20,7 +20,7 @@ func main() {
 
 	//storage := inMemory.NewInMemory() Could be as storage for read data
 
-	// create connectrion with redis storage
+	// create connection with redis storage
 	storage := redis.NewRedisDB(config.RedisAddr, config.RedisDB)
 
 	// create connection with postgreSQL storage

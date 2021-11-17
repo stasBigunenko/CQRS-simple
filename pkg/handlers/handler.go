@@ -78,18 +78,26 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := h.command.CreateUser(user)
-	if err != nil {
-		msg := "Internal problem" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(msgJson)
-		return
-	}
+	var cud models.Cud
 
+	cud.Model = "user"
+	cud.Command = "create"
+	cud.User = user
+
+	queue.QueueCreateWrite(cud)
+
+	//res, err := h.command.CreateUser(user)
+	//if err != nil {
+	//	msg := "Internal problem" //TODO
+	//	msgJson, err := json.Marshal(msg)
+	//	if err != nil {
+	//		log.Fatalf("error")
+	//	}
+	//	w.WriteHeader(http.StatusInternalServerError)
+	//	w.Write(msgJson)
+	//	return
+	//}
+	res := "user created"
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(&res)
 }
@@ -135,18 +143,26 @@ func (h *UserHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	post.UserID = key
 
-	res, err := h.command.CreatePost(post)
-	if err != nil {
-		msg := "Internal problem" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(msgJson)
-		return
-	}
+	var cud models.Cud
 
+	cud.Model = "post"
+	cud.Command = "create"
+	cud.Post = post
+
+	queue.QueueCreateWrite(cud)
+
+	//res, err := h.command.CreatePost(post)
+	//if err != nil {
+	//	msg := "Internal problem" //TODO
+	//	msgJson, err := json.Marshal(msg)
+	//	if err != nil {
+	//		log.Fatalf("error")
+	//	}
+	//	w.WriteHeader(http.StatusInternalServerError)
+	//	w.Write(msgJson)
+	//	return
+	//}
+	res := "post created"
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(&res)
 }
@@ -193,6 +209,14 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	key := vars["id"]
 
 	user.ID = key
+
+	var cud models.Cud
+
+	cud.Model = "user"
+	cud.Command = "update"
+	cud.User = user
+
+	queue.QueueCreateWrite(cud)
 
 	res, err := h.command.UpdateUser(user)
 	if err != nil {
@@ -251,6 +275,14 @@ func (h *UserHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 
 	post.ID = key
 
+	var cud models.Cud
+
+	cud.Model = "post"
+	cud.Command = "update"
+	cud.Post = post
+
+	queue.QueueCreateWrite(cud)
+
 	res, err := h.command.UpdatePost(post)
 	if err != nil {
 		msg := "Internal problem" //TODO
@@ -281,6 +313,17 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	key := vars["id"]
+
+	var user models.User
+	user.ID = key
+
+	var cud models.Cud
+
+	cud.Model = "user"
+	cud.Command = "delete"
+	cud.User = user
+
+	queue.QueueCreateWrite(cud)
 
 	err := h.command.DeleteUser(key)
 	if err != nil {
@@ -314,6 +357,17 @@ func (h *UserHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	key := vars["id"]
+
+	var post models.Post
+	post.ID = key
+
+	var cud models.Cud
+
+	cud.Model = "post"
+	cud.Command = "delete"
+	cud.Post = post
+
+	queue.QueueCreateWrite(cud)
 
 	err := h.command.DeletePost(key)
 	if err != nil {

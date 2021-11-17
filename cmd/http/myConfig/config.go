@@ -17,6 +17,11 @@ type Config struct {
 	// Redis
 	RedisAddr string
 	RedisDB   string
+
+	// Handler producer
+	RMQPath string
+	RMQLog  string
+	RMQPass string
 }
 
 func SetConfig() *Config {
@@ -67,6 +72,21 @@ func SetConfig() *Config {
 		config.RedisDB = "redisDB"
 	}
 
+	config.RMQPath = os.Getenv("RMQ_PATH")
+	if config.RMQPath == "" {
+		config.RMQPath = "localhost:5672/"
+	}
+
+	config.RMQLog = os.Getenv("RMQ_LOG")
+	if config.RMQLog == "" {
+		config.RMQLog = "guest"
+	}
+
+	config.RMQPass = os.Getenv("RMQ_PASS")
+	if config.RMQPass == "" {
+		config.RMQPass = "guest"
+	}
+
 	return &Config{
 		PortHTTP: config.PortHTTP,
 
@@ -79,5 +99,9 @@ func SetConfig() *Config {
 
 		RedisAddr: config.RedisAddr,
 		RedisDB:   config.RedisDB,
+
+		RMQPath: config.RMQPath,
+		RMQLog:  config.RMQLog,
+		RMQPass: config.RMQPass,
 	}
 }
