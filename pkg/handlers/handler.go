@@ -412,6 +412,7 @@ func (h *UserHandler) GetUserPosts(w http.ResponseWriter, r *http.Request) {
 		}
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(msgJson)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)

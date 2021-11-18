@@ -4,6 +4,7 @@ import (
 	"CQRS-simple/pkg/models"
 	"CQRS-simple/pkg/storage/inMemory"
 	"CQRS-simple/pkg/storage/postgreSQL"
+	"log"
 )
 
 type Queue struct {
@@ -50,15 +51,17 @@ func (q *Queue) GetAllUsers() (*[]models.User, error) {
 	return users, nil
 }
 
-func (q *Queue) UserPosts(userID string) (*models.UserPosts, error) {
+func (q *Queue) UserPosts(userID string) (models.UserPosts, error) {
+	var postRead models.UserPosts
 	postRead, err := q.storage.GetUserPosts(userID)
+	log.Printf("postRead in Queue before if = %v\n", postRead)
 	if err != nil {
 		//return &models.UserPosts{}, err
 		user, err := q.queue.GetUser(userID)
 		if err != nil {
-			return &models.UserPosts{}, err
+			return models.UserPosts{}, err
 		}
-		q.storage.CreateUser(user)
+		postRead.User, _ = q.storage.CreateUser(user)
 		res, _ := q.queue.GetPosts(userID)
 		for _, p := range res {
 			var pr models.Post
@@ -66,10 +69,11 @@ func (q *Queue) UserPosts(userID string) (*models.UserPosts, error) {
 			pr.UserID = userID
 			pr.Title = p.Title
 			pr.Message = p.Message
-			q.storage.CreatePost(pr)
+			post, _ := q.storage.CreatePost(pr)
+			postRead.Posts = append(postRead.Posts, post)
 		}
 	}
-
+	log.Printf("postRead in Queue after if = %v\n", postRead)
 	return postRead, nil
 }
 

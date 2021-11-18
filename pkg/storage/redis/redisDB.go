@@ -32,7 +32,7 @@ func NewRedisDB(addr string, db string) *RedisDB {
 	return &RedisDB{Client: redisDB}
 }
 
-func (r *RedisDB) CreateUser(ur models.Read) error {
+func (r *RedisDB) CreateUser(ur models.Read) (models.User, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -42,29 +42,29 @@ func (r *RedisDB) CreateUser(ur models.Read) error {
 
 	jr, err := json.Marshal(read)
 	if err != nil {
-		return errors.New("redis marshal problem")
+		return models.User{}, errors.New("redis marshal problem")
 	}
 
-	err = r.Client.Set(read.User.ID, jr, 15*time.Second).Err()
+	err = r.Client.Set(read.User.ID, jr, 60*time.Second).Err()
 	if err != nil {
-		return errors.New("redis internal problem")
+		return models.User{}, errors.New("redis marshal problem")
 	}
-	return nil
+	return read.User, nil
 }
-func (r *RedisDB) CreatePost(ur models.Post) error {
+func (r *RedisDB) CreatePost(ur models.Post) (models.PostRead, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	val, err := r.Client.Get(ur.UserID).Bytes()
 	if err != nil {
-		return errors.New("redis internal problem")
+		return models.PostRead{}, errors.New("redis internal problem")
 	}
 
 	jur := models.UserPosts{}
 
 	err = json.Unmarshal(val, &jur)
 	if err != nil {
-		return errors.New("redis unmarshal problems")
+		return models.PostRead{}, errors.New("redis unmarshal problems")
 	}
 
 	var pr models.PostRead
@@ -77,15 +77,15 @@ func (r *RedisDB) CreatePost(ur models.Post) error {
 
 	jr, err := json.Marshal(jur)
 	if err != nil {
-		return errors.New("redis marshal problem")
+		return models.PostRead{}, errors.New("redis marshal problem")
 	}
 
-	err = r.Client.Set(ur.UserID, jr, 15*time.Second).Err()
+	err = r.Client.Set(ur.UserID, jr, 60*time.Second).Err()
 	if err != nil {
-		return errors.New("redis internal problem")
+		return models.PostRead{}, errors.New("redis internal problem")
 	}
 
-	return nil
+	return pr, nil
 }
 func (r *RedisDB) GetAllUsers() (*[]models.User, error) {
 	var users []models.User
@@ -111,17 +111,17 @@ func (r *RedisDB) GetAllUsers() (*[]models.User, error) {
 
 	return &users, nil
 }
-func (r *RedisDB) GetUserPosts(id string) (*models.UserPosts, error) {
+func (r *RedisDB) GetUserPosts(id string) (models.UserPosts, error) {
 	var userPost models.UserPosts
 
 	userPostsJ, err := r.Client.Get(id).Bytes()
 	if err != nil {
-		return nil, errors.New("redis internal problem")
+		return models.UserPosts{}, errors.New("redis internal problem")
 	}
 
 	err = json.Unmarshal(userPostsJ, &userPost)
 
-	return &userPost, nil
+	return userPost, nil
 }
 func (r *RedisDB) UpdateUser(u models.User) error {
 	r.mu.Lock()
@@ -146,7 +146,7 @@ func (r *RedisDB) UpdateUser(u models.User) error {
 		return errors.New("redis marshal problem")
 	}
 
-	err = r.Client.Set(u.ID, ju, 15*time.Second).Err()
+	err = r.Client.Set(u.ID, ju, 60*time.Second).Err()
 	if err != nil {
 		return errors.New("redis internal problem")
 	}
@@ -183,7 +183,7 @@ func (r *RedisDB) UpdatePost(p models.Post) error {
 		return errors.New("redis marshal problem")
 	}
 
-	err = r.Client.Set(p.UserID, ju, 15*time.Second).Err()
+	err = r.Client.Set(p.UserID, ju, 60*time.Second).Err()
 	if err != nil {
 		return errors.New("redis internal problem")
 	}
@@ -236,7 +236,7 @@ func (r *RedisDB) DeletePost(id, userID string) error {
 		return errors.New("redis marshal problem")
 	}
 
-	err = r.Client.Set(userID, ju, 15*time.Second).Err()
+	err = r.Client.Set(userID, ju, 60*time.Second).Err()
 	if err != nil {
 		return errors.New("redis internal problem")
 	}
