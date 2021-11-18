@@ -29,6 +29,18 @@ func (q *Queue) GetAllUsers() (*[]models.User, error) {
 		var r models.Read
 		r.User = val
 		q.storage.CreateUser(r)
+		res, err := q.queue.GetPosts(r.User.ID)
+		if err != nil {
+			continue
+		}
+		for _, p := range res {
+			var pr models.Post
+			pr.ID = p.ID
+			pr.UserID = r.User.ID
+			pr.Title = p.Title
+			pr.Message = p.Message
+			q.storage.CreatePost(pr)
+		}
 	}
 	//users, err := q.storage.GetAllUsers()
 	//if err != nil {
@@ -41,7 +53,21 @@ func (q *Queue) GetAllUsers() (*[]models.User, error) {
 func (q *Queue) UserPosts(userID string) (*models.UserPosts, error) {
 	postRead, err := q.storage.GetUserPosts(userID)
 	if err != nil {
-		return &models.UserPosts{}, err
+		//return &models.UserPosts{}, err
+		user, err := q.queue.GetUser(userID)
+		if err != nil {
+			return &models.UserPosts{}, err
+		}
+		q.storage.CreateUser(user)
+		res, _ := q.queue.GetPosts(userID)
+		for _, p := range res {
+			var pr models.Post
+			pr.ID = p.ID
+			pr.UserID = userID
+			pr.Title = p.Title
+			pr.Message = p.Message
+			q.storage.CreatePost(pr)
+		}
 	}
 
 	return postRead, nil

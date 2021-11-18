@@ -8,6 +8,7 @@ import (
 	"github.com/go-redis/redis"
 	"strconv"
 	"sync"
+	"time"
 )
 
 type RedisDB struct {
@@ -44,7 +45,7 @@ func (r *RedisDB) CreateUser(ur models.Read) error {
 		return errors.New("redis marshal problem")
 	}
 
-	err = r.Client.Set(read.User.ID, jr, 0).Err()
+	err = r.Client.Set(read.User.ID, jr, 15*time.Second).Err()
 	if err != nil {
 		return errors.New("redis internal problem")
 	}
@@ -79,7 +80,7 @@ func (r *RedisDB) CreatePost(ur models.Post) error {
 		return errors.New("redis marshal problem")
 	}
 
-	err = r.Client.Set(ur.UserID, jr, 0).Err()
+	err = r.Client.Set(ur.UserID, jr, 15*time.Second).Err()
 	if err != nil {
 		return errors.New("redis internal problem")
 	}
@@ -145,7 +146,7 @@ func (r *RedisDB) UpdateUser(u models.User) error {
 		return errors.New("redis marshal problem")
 	}
 
-	err = r.Client.Set(u.ID, ju, 0).Err()
+	err = r.Client.Set(u.ID, ju, 15*time.Second).Err()
 	if err != nil {
 		return errors.New("redis internal problem")
 	}
@@ -182,7 +183,7 @@ func (r *RedisDB) UpdatePost(p models.Post) error {
 		return errors.New("redis marshal problem")
 	}
 
-	err = r.Client.Set(p.UserID, ju, 0).Err()
+	err = r.Client.Set(p.UserID, ju, 15*time.Second).Err()
 	if err != nil {
 		return errors.New("redis internal problem")
 	}
@@ -235,7 +236,7 @@ func (r *RedisDB) DeletePost(id, userID string) error {
 		return errors.New("redis marshal problem")
 	}
 
-	err = r.Client.Set(userID, ju, 0).Err()
+	err = r.Client.Set(userID, ju, 15*time.Second).Err()
 	if err != nil {
 		return errors.New("redis internal problem")
 	}
