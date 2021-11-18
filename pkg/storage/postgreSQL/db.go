@@ -25,8 +25,8 @@ func NewPDB(host string, port string, user string, psw string, dbname string, ss
 
 	database := &PostgresDB{Pdb: db}
 
-	database.Pdb.Exec("CREATE TABLE users (\n    userID VARCHAR(40) PRIMARY KEY NOT NULL,\n    name VARCHAR(50) NOT NULL,\n  age INT);")
-	database.Pdb.Exec("CREATE TABLE posts (\n    postID VARCHAR(40) PRIMARY KEY NOT NULL,\n    userID VARCHAR(50) NOT NULL,\n    title VARCHAR(50) NOT NULL\n, message VARCHAR(155));")
+	database.Pdb.Exec("CREATE TABLE IF NOT EXISTS users (\n    userID VARCHAR(40) PRIMARY KEY NOT NULL,\n    name VARCHAR(50) NOT NULL,\n  age INT);")
+	database.Pdb.Exec("CREATE TABLE IF NOT EXISTS posts (\n    postID VARCHAR(40) PRIMARY KEY NOT NULL,\n    userID VARCHAR(50) NOT NULL,\n    title VARCHAR(50) NOT NULL\n, message VARCHAR(155));")
 	//database.Pdb.Exec("CREATE TABLE read (\n    userID VARCHAR(40) NOT NULL,\n    name VARCHAR(50) NOT NULL,\n  age INT,\n postID VARCHAR(40)\n, title VARCHAR(50) NOT NULL\n, message VARCHAR(155));")
 
 	return database, nil

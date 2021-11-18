@@ -219,18 +219,18 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	createQueue.QueueCreateWrite(cud)
 
-	res, err := h.command.UpdateUser(user)
-	if err != nil {
-		msg := "Internal problem" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(msgJson)
-		return
-	}
-
+	//res, err := h.command.UpdateUser(user)
+	//if err != nil {
+	//	msg := "Internal problem" //TODO
+	//	msgJson, err := json.Marshal(msg)
+	//	if err != nil {
+	//		log.Fatalf("error")
+	//	}
+	//	w.WriteHeader(http.StatusInternalServerError)
+	//	w.Write(msgJson)
+	//	return
+	//}
+	res := "user updated"
 	w.WriteHeader(http.StatusAccepted)
 	json.NewEncoder(w).Encode(&res)
 }
@@ -284,17 +284,17 @@ func (h *UserHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 
 	createQueue.QueueCreateWrite(cud)
 
-	res, err := h.command.UpdatePost(post)
-	if err != nil {
-		msg := "Internal problem" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(msgJson)
-	}
-
+	//res, err := h.command.UpdatePost(post)
+	//if err != nil {
+	//	msg := "Internal problem" //TODO
+	//	msgJson, err := json.Marshal(msg)
+	//	if err != nil {
+	//		log.Fatalf("error")
+	//	}
+	//	w.WriteHeader(http.StatusInternalServerError)
+	//	w.Write(msgJson)
+	//}
+	res := "post updated"
 	w.WriteHeader(http.StatusAccepted)
 	json.NewEncoder(w).Encode(&res)
 }
@@ -326,17 +326,17 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	createQueue.QueueCreateWrite(cud)
 
-	err := h.command.DeleteUser(key)
-	if err != nil {
-		msg := "Internal problem" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(msgJson)
-		return
-	}
+	//err := h.command.DeleteUser(key)
+	//if err != nil {
+	//	msg := "Internal problem" //TODO
+	//	msgJson, err := json.Marshal(msg)
+	//	if err != nil {
+	//		log.Fatalf("error")
+	//	}
+	//	w.WriteHeader(http.StatusInternalServerError)
+	//	w.Write(msgJson)
+	//	return
+	//}
 
 	w.WriteHeader(http.StatusAccepted)
 	msg := "User deleted"
@@ -370,17 +370,17 @@ func (h *UserHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 
 	createQueue.QueueCreateWrite(cud)
 
-	err := h.command.DeletePost(key)
-	if err != nil {
-		msg := "Internal problem" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(msgJson)
-		return
-	}
+	//err := h.command.DeletePost(key)
+	//if err != nil {
+	//	msg := "Internal problem" //TODO
+	//	msgJson, err := json.Marshal(msg)
+	//	if err != nil {
+	//		log.Fatalf("error")
+	//	}
+	//	w.WriteHeader(http.StatusInternalServerError)
+	//	w.Write(msgJson)
+	//	return
+	//}
 
 	w.WriteHeader(http.StatusAccepted)
 	msg := "Post deleted"

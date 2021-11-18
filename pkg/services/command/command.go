@@ -7,6 +7,7 @@ import (
 	"CQRS-simple/pkg/storage/postgreSQL"
 	"errors"
 	"github.com/google/uuid"
+	"log"
 )
 
 type Command struct {
@@ -99,6 +100,7 @@ func (c *Command) UpdateUser(u models.User) (*models.User, error) {
 		cud.Command = "update"
 		cud.User = userNew
 		createQueue.QueueCreateCache(cud)
+		log.Println("----------QUEUE CACHE UPDATE USER SENDED-------------")
 		//err = c.storage.UpdateUser(userNew)
 		//if err != nil {
 		//	return &models.User{}, err
@@ -123,6 +125,7 @@ func (c *Command) UpdatePost(p models.Post) (*models.Post, error) {
 		cud.Command = "update"
 		cud.Post = postNew
 		createQueue.QueueCreateCache(cud)
+		log.Println("----------QUEUE CACHE UPDATE POST SENDED-------------")
 		//err = c.storage.UpdatePost(postNew)
 		//if err != nil {
 		//	return &models.Post{}, err
@@ -149,6 +152,7 @@ func (c *Command) DeleteUser(id string) error {
 		cud.Command = "delete"
 		cud.User.ID = id
 		createQueue.QueueCreateCache(cud)
+		log.Println("----------QUEUE CACHE DELETE USER SENDED-------------")
 		//err = c.storage.DeleteUser(id)
 		//if err != nil {
 		//	return err
@@ -181,8 +185,9 @@ func (c *Command) DeletePost(id string) error {
 		var cud models.Cud
 		cud.Model = "post"
 		cud.Command = "delete"
-		cud.User.ID = userID
+		cud.Post = *mp
 		createQueue.QueueCreateCache(cud)
+		log.Println("----------QUEUE CACHE DELETE POST SENDED-------------")
 		//err = c.storage.DeletePost(id, userID)
 		//if err != nil {
 		//	return err

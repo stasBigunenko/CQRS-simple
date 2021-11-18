@@ -89,6 +89,7 @@ func main() {
 		for m := range msgs {
 			var cud models.Cud
 			json.Unmarshal(m.Body, &cud)
+			log.Printf("----------QUEUE CACHE RECEIVED with FOLOWING DATA %v-------------\n", cud)
 			cacheConsumer.Received(cud)
 		}
 	}()
