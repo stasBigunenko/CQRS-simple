@@ -20,10 +20,20 @@ func NewQueue(q postgreSQL.DBInterface, s inMemory.InMemoryInterface) Queue {
 
 func (q *Queue) GetAllUsers() (*[]models.User, error) {
 
-	users, err := q.storage.GetAllUsers()
+	users, err := q.queue.GetAllUsers()
 	if err != nil {
 		return &[]models.User{}, err
 	}
+
+	for _, val := range *users {
+		var r models.Read
+		r.User = val
+		q.storage.CreateUser(r)
+	}
+	//users, err := q.storage.GetAllUsers()
+	//if err != nil {
+	//	return &[]models.User{}, err
+	//}
 
 	return users, nil
 }

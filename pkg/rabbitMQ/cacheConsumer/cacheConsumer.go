@@ -38,6 +38,8 @@ func (c *CacheConsumer) ReceivedUser(cud models.Cud) {
 
 func (c *CacheConsumer) ReceivedPost(cud models.Cud) {
 	switch cud.Command {
+	case "create":
+		c.CreatePost(cud.Post)
 	case "update":
 		c.UpdatePost(cud.Post)
 	case "delete":
@@ -56,6 +58,10 @@ func (c *CacheConsumer) UpdateUser(u models.User) {
 
 func (c *CacheConsumer) DeleteUser(u models.User) {
 	c.dbRedis.DeleteUser(u.ID)
+}
+
+func (c *CacheConsumer) CreatePost(p models.Post) {
+	c.dbRedis.CreatePost(p)
 }
 
 func (c *CacheConsumer) UpdatePost(p models.Post) {

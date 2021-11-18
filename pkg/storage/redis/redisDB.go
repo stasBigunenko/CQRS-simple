@@ -50,11 +50,11 @@ func (r *RedisDB) CreateUser(ur models.Read) error {
 	}
 	return nil
 }
-func (r *RedisDB) CreatePost(ur models.Read) error {
+func (r *RedisDB) CreatePost(ur models.Post) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	val, err := r.Client.Get(ur.User.ID).Bytes()
+	val, err := r.Client.Get(ur.UserID).Bytes()
 	if err != nil {
 		return errors.New("redis internal problem")
 	}
@@ -66,14 +66,20 @@ func (r *RedisDB) CreatePost(ur models.Read) error {
 		return errors.New("redis unmarshal problems")
 	}
 
-	jur.Posts = append(jur.Posts, ur.PostRead)
+	var pr models.PostRead
+
+	pr.ID = ur.ID
+	pr.Title = ur.Title
+	pr.Message = ur.Message
+
+	jur.Posts = append(jur.Posts, pr)
 
 	jr, err := json.Marshal(jur)
 	if err != nil {
 		return errors.New("redis marshal problem")
 	}
 
-	err = r.Client.Set(ur.User.ID, jr, 0).Err()
+	err = r.Client.Set(ur.UserID, jr, 0).Err()
 	if err != nil {
 		return errors.New("redis internal problem")
 	}
