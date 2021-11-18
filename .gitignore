@@ -15,6 +15,5 @@
 # vendor/
 
 .idea
-
-./pkg/rabbitMQ/data
-./pkg/rabbitMQ/log
+data
+log
