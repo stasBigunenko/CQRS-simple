@@ -236,3 +236,11 @@ func (r *RedisDB) DeletePost(id, userID string) error {
 
 	return nil
 }
+
+func (r *RedisDB) Exist(id string) bool {
+	_, err := r.Client.Get(id).Bytes()
+	if err != nil {
+		return false
+	}
+	return true
+}

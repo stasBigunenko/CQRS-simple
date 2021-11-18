@@ -1,4 +1,4 @@
-package queue
+package createQueue
 
 import (
 	"CQRS-simple/cmd/http/myConfig"
@@ -86,7 +86,7 @@ func QueueCreateWrite(c models.Cud) error {
 	return nil
 }
 
-func QueueCreateCache(up models.UserPosts) error {
+func QueueCreateCache(up models.Cud) error {
 
 	inBytes, _ := json.Marshal(up)
 	pushCommentToQueue("read", inBytes)

@@ -2,6 +2,7 @@ package command
 
 import (
 	"CQRS-simple/pkg/models"
+	"CQRS-simple/pkg/rabbitMQ/createQueue"
 	"CQRS-simple/pkg/storage/inMemory"
 	"CQRS-simple/pkg/storage/postgreSQL"
 	"errors"
@@ -91,7 +92,18 @@ func (c *Command) UpdateUser(u models.User) (*models.User, error) {
 	}
 
 	//c.command.UpdateReadUser(userNew) function for inMemory Storage
-	c.storage.UpdateUser(userNew)
+	exist := c.storage.Exist(u.ID)
+	if exist {
+		var cud models.Cud
+		cud.Model = "user"
+		cud.Command = "update"
+		cud.User = userNew
+		createQueue.QueueCreateCache(cud)
+		//err = c.storage.UpdateUser(userNew)
+		//if err != nil {
+		//	return &models.User{}, err
+		//}
+	}
 
 	return &userNew, nil
 }
@@ -104,7 +116,18 @@ func (c *Command) UpdatePost(p models.Post) (*models.Post, error) {
 	}
 
 	//c.command.UpdateReadPost(postNew) function for inMemory Storage
-	c.storage.UpdatePost(postNew)
+	exist := c.storage.Exist(postNew.UserID)
+	if exist {
+		var cud models.Cud
+		cud.Model = "post"
+		cud.Command = "update"
+		cud.Post = postNew
+		createQueue.QueueCreateCache(cud)
+		//err = c.storage.UpdatePost(postNew)
+		//if err != nil {
+		//	return &models.Post{}, err
+		//}
+	}
 
 	return &postNew, nil
 }
@@ -119,9 +142,18 @@ func (c *Command) DeleteUser(id string) error {
 	//if err != nil {
 	//	return err
 	//}
-
-	err = c.storage.DeleteUser(id)
-
+	exist := c.storage.Exist(id)
+	if exist {
+		var cud models.Cud
+		cud.Model = "user"
+		cud.Command = "delete"
+		cud.User.ID = id
+		createQueue.QueueCreateCache(cud)
+		//err = c.storage.DeleteUser(id)
+		//if err != nil {
+		//	return err
+		//}
+	}
 	return nil
 }
 
@@ -144,9 +176,17 @@ func (c *Command) DeletePost(id string) error {
 
 	userID := mp.UserID
 
-	err = c.storage.DeletePost(id, userID)
-	if err != nil {
-		return err
+	exist := c.storage.Exist(userID)
+	if exist {
+		var cud models.Cud
+		cud.Model = "post"
+		cud.Command = "delete"
+		cud.User.ID = userID
+		createQueue.QueueCreateCache(cud)
+		//err = c.storage.DeletePost(id, userID)
+		//if err != nil {
+		//	return err
+		//}
 	}
 
 	return nil

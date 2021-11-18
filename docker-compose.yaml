@@ -76,3 +76,23 @@ services:
       POSTGRES_SSL: "disable"
       REDIS_ADDR: "redis:6379"
     restart: on-failure
+
+  consumer-cache:
+    build:
+      context: "./"
+      dockerfile: "./docker/cacheConsumer.Dockerfile"
+    depends_on:
+      - rabbitmq-broker
+    #      - http
+    environment:
+      RMQ_PATH: "rabbitmq-broker:5672/"
+      RMQ_LOG: "guest"
+      RMQ_PASS: "guest"
+      POSTGRES_HOST: "postgres"
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "qwerty"
+      POSTGRES_DB: "postgres"
+      POSTGRES_SSL: "disable"
+      REDIS_ADDR: "redis:6379"
+    restart: on-failure

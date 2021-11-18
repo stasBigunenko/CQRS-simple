@@ -11,4 +11,5 @@ type InMemoryInterface interface {
 	UpdatePost(p models.Post) error
 	DeleteUser(id string) error
 	DeletePost(id, userID string) error
+	Exist(id string) bool
 }

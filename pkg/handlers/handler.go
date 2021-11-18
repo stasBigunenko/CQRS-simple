@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"CQRS-simple/pkg/models"
+	"CQRS-simple/pkg/rabbitMQ/createQueue"
 	"CQRS-simple/pkg/services/command"
 	"CQRS-simple/pkg/services/queue"
 	"encoding/json"
@@ -84,7 +85,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	cud.Command = "create"
 	cud.User = user
 
-	queue.QueueCreateWrite(cud)
+	createQueue.QueueCreateWrite(cud)
 
 	//res, err := h.command.CreateUser(user)
 	//if err != nil {
@@ -149,7 +150,7 @@ func (h *UserHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	cud.Command = "create"
 	cud.Post = post
 
-	queue.QueueCreateWrite(cud)
+	createQueue.QueueCreateWrite(cud)
 
 	//res, err := h.command.CreatePost(post)
 	//if err != nil {
@@ -216,7 +217,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	cud.Command = "update"
 	cud.User = user
 
-	queue.QueueCreateWrite(cud)
+	createQueue.QueueCreateWrite(cud)
 
 	res, err := h.command.UpdateUser(user)
 	if err != nil {
@@ -281,7 +282,7 @@ func (h *UserHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	cud.Command = "update"
 	cud.Post = post
 
-	queue.QueueCreateWrite(cud)
+	createQueue.QueueCreateWrite(cud)
 
 	res, err := h.command.UpdatePost(post)
 	if err != nil {
@@ -323,7 +324,7 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	cud.Command = "delete"
 	cud.User = user
 
-	queue.QueueCreateWrite(cud)
+	createQueue.QueueCreateWrite(cud)
 
 	err := h.command.DeleteUser(key)
 	if err != nil {
@@ -367,7 +368,7 @@ func (h *UserHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	cud.Command = "delete"
 	cud.Post = post
 
-	queue.QueueCreateWrite(cud)
+	createQueue.QueueCreateWrite(cud)
 
 	err := h.command.DeletePost(key)
 	if err != nil {
