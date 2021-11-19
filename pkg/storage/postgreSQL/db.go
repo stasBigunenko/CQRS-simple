@@ -133,7 +133,7 @@ func (pdb *PostgresDB) UpdateUser(u models.User) (models.User, error) {
 	err := pdb.Pdb.QueryRow(
 		`SELECT name, age FROM users WHERE userID=$1`, u.ID).Scan(&oldUser.Name, &oldUser.Age)
 	if err != nil {
-		return models.User{}, errors.New("couldn't find post")
+		return models.User{}, errors.New("couldn't find user")
 	}
 
 	if u.Name == "" {
@@ -190,7 +190,7 @@ func (pdb *PostgresDB) DeleteUser(id string) error {
 	_, err := pdb.Pdb.Exec(
 		`DELETE FROM users where userID = $1`, id)
 	if err != nil {
-		return errors.New("couldn't delete post")
+		return errors.New("couldn't delete user")
 	}
 
 	return nil

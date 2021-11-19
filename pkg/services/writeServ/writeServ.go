@@ -29,15 +29,6 @@ func (w *WriteServ) CreateUser(u models.User) (*models.User, error) {
 		return nil, err
 	}
 
-	var r models.Read
-
-	r.User.ID = userNew.ID
-	r.User.Name = userNew.Name
-	r.User.Age = userNew.Age
-	r.PostRead.ID = "empty"
-	r.PostRead.Title = "empty"
-	r.PostRead.Message = "empty"
-
 	return &userNew, nil
 }
 
