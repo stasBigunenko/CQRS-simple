@@ -3,8 +3,8 @@ package handlers
 import (
 	"CQRS-simple/pkg/models"
 	"CQRS-simple/pkg/rabbitMQ/createQueue"
-	"CQRS-simple/pkg/services/command"
-	"CQRS-simple/pkg/services/queue"
+	"CQRS-simple/pkg/services/readServ"
+	"CQRS-simple/pkg/services/writeServ"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"io/ioutil"
@@ -13,11 +13,11 @@ import (
 )
 
 type UserHandler struct {
-	command command.CommandInterface
-	queue   queue.QueueInterface
+	command writeServ.WriteServInterface
+	queue   readServ.ReadServInterface
 }
 
-func NewHandler(c command.CommandInterface, q queue.QueueInterface) *UserHandler {
+func NewHandler(c writeServ.WriteServInterface, q readServ.ReadServInterface) *UserHandler {
 	return &UserHandler{
 		command: c,
 		queue:   q,

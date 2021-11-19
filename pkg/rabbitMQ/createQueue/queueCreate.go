@@ -50,14 +50,14 @@ func pushCommentToQueue(topic string, message []byte) error {
 	)
 	// We can print out the status of our Queue here
 	// this will information like the amount of messages on
-	// the queue
+	// the readServ
 	fmt.Println(q)
-	// Handle any errors if we were unable to create the queue
+	// Handle any errors if we were unable to create the readServ
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	// attempt to publish a message to the queue!
+	// attempt to publish a message to the readServ!
 	err = ch.Publish(
 		"",
 		topic,

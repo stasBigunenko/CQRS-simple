@@ -1,4 +1,4 @@
-package command
+package writeServ
 
 import (
 	"CQRS-simple/pkg/models"

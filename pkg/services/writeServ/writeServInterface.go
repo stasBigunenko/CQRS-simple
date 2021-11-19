@@ -1,8 +1,8 @@
-package command
+package writeServ
 
 import "CQRS-simple/pkg/models"
 
-type CommandInterface interface {
+type WriteServInterface interface {
 	CreateUser(u models.User) (*models.User, error)
 	CreatePost(p models.Post) (*models.Post, error)
 	UpdateUser(u models.User) (*models.User, error)

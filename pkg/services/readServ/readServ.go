@@ -1,4 +1,4 @@
-package queue
+package readServ
 
 import (
 	"CQRS-simple/pkg/models"

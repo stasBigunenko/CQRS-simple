@@ -30,9 +30,9 @@ func main() {
 	}
 
 	//// interface of write functions
-	//command := command.NewCommand(db, storage)
+	//writeServ := writeServ.NewCommand(db, storage)
 	//// interface for read functions
-	//queu := queue.NewQueue(db, storage)
+	//queu := readServ.NewQueue(db, storage)
 	//// create handler
 
 	cacheConsumer := cacheConsumer.NewCacheConsumer(db, storage)

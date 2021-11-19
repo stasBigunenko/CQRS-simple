@@ -3,8 +3,8 @@ package main
 import (
 	"CQRS-simple/cmd/http/myConfig"
 	"CQRS-simple/pkg/handlers"
-	"CQRS-simple/pkg/services/command"
-	"CQRS-simple/pkg/services/queue"
+	"CQRS-simple/pkg/services/readServ"
+	"CQRS-simple/pkg/services/writeServ"
 	"CQRS-simple/pkg/storage/postgreSQL"
 	"CQRS-simple/pkg/storage/redis"
 	"context"
@@ -32,9 +32,9 @@ func main() {
 	}
 
 	// interface of write functions
-	command := command.NewCommand(db, storage)
+	command := writeServ.NewCommand(db, storage)
 	// interface for read functions
-	queu := queue.NewQueue(db, storage)
+	queu := readServ.NewQueue(db, storage)
 	// create handler
 	userRoutes := handlers.NewHandler(&command, &queu)
 
