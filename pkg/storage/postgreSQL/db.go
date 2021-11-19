@@ -68,23 +68,7 @@ func (pdb *PostgresDB) CreatePost(p models.Post) (models.Post, error) {
 	return p, nil
 }
 
-//
-//func (pdb *PostgresDB) Get(id string) (models.Read, error) {
-//
-//	var r models.Read
-//
-//	err := pdb.Pdb.QueryRow(
-//		`SELECT userID, name, age, postID, title, message FROM read WHERE userID=$1`, id).Scan(&r.User.ID, &r.User.Name, &r.User.Age, &r.PostRead.ID, &r.PostRead.Title, &r.PostRead.Message)
-//	if err != nil {
-//		return models.Read{}, errors.New("user doesn't exist")
-//	}
-//
-//	return r, nil
-//}
-
 func (pdb *PostgresDB) CreateReadInfo(res models.Read) error {
-
-	//res.ID = uuid.New().String()
 
 	_, err := pdb.Pdb.Exec(
 		"INSERT INTO read (userID, name, age, postID, title, message) VALUES ($1, $2, $3, $4, $5, $6)", res.User.ID, res.User.Name, res.User.Age, res.PostRead.ID, res.PostRead.Title, res.PostRead.Message)
@@ -151,19 +135,6 @@ func (pdb *PostgresDB) GetAllUsers() (*[]models.User, error) {
 
 	return &users, nil
 }
-
-//func (pdb *PostgresDB) GetPostRead(id string) (models.Read, error) {
-//
-//	var p models.Read
-//
-//	err := pdb.Pdb.QueryRow(
-//		`SELECT postID, userID, title, message FROM read WHERE postID=$1`, id).Scan(&p.PostRead.ID, &p.User.ID, &p.PostRead.Title, &p.PostRead.Message)
-//	if err != nil {
-//		return models.Read{}, errors.New("user doesn't exist")
-//	}
-//
-//	return p, nil
-//}
 
 func (pdb *PostgresDB) GetPostRead(id string) (models.Read, error) {
 

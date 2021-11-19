@@ -36,8 +36,6 @@ func (h *UserHandler) Routes(r *mux.Router) *mux.Router {
 
 	r.HandleFunc("/user-posts/{id}", h.GetUserPosts).Methods("GET")
 	r.HandleFunc("/", h.GetAllUsers).Methods("GET")
-	//r.HandleFunc("/user/{id}", h.GetUser).Methods("GET")
-	//r.HandleFunc("/post/{id}", h.GetPost).Methods("GET")
 	return r
 }
 
@@ -87,17 +85,6 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	createQueue.QueueCreateWrite(cud)
 
-	//res, err := h.command.CreateUser(user)
-	//if err != nil {
-	//	msg := "Internal problem" //TODO
-	//	msgJson, err := json.Marshal(msg)
-	//	if err != nil {
-	//		log.Fatalf("error")
-	//	}
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//	w.Write(msgJson)
-	//	return
-	//}
 	res := "user created"
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(&res)
@@ -152,17 +139,6 @@ func (h *UserHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	createQueue.QueueCreateWrite(cud)
 
-	//res, err := h.command.CreatePost(post)
-	//if err != nil {
-	//	msg := "Internal problem" //TODO
-	//	msgJson, err := json.Marshal(msg)
-	//	if err != nil {
-	//		log.Fatalf("error")
-	//	}
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//	w.Write(msgJson)
-	//	return
-	//}
 	res := "post created"
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(&res)
@@ -219,17 +195,6 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	createQueue.QueueCreateWrite(cud)
 
-	//res, err := h.command.UpdateUser(user)
-	//if err != nil {
-	//	msg := "Internal problem" //TODO
-	//	msgJson, err := json.Marshal(msg)
-	//	if err != nil {
-	//		log.Fatalf("error")
-	//	}
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//	w.Write(msgJson)
-	//	return
-	//}
 	res := "user updated"
 	w.WriteHeader(http.StatusAccepted)
 	json.NewEncoder(w).Encode(&res)
@@ -284,16 +249,6 @@ func (h *UserHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 
 	createQueue.QueueCreateWrite(cud)
 
-	//res, err := h.command.UpdatePost(post)
-	//if err != nil {
-	//	msg := "Internal problem" //TODO
-	//	msgJson, err := json.Marshal(msg)
-	//	if err != nil {
-	//		log.Fatalf("error")
-	//	}
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//	w.Write(msgJson)
-	//}
 	res := "post updated"
 	w.WriteHeader(http.StatusAccepted)
 	json.NewEncoder(w).Encode(&res)
@@ -326,18 +281,6 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	createQueue.QueueCreateWrite(cud)
 
-	//err := h.command.DeleteUser(key)
-	//if err != nil {
-	//	msg := "Internal problem" //TODO
-	//	msgJson, err := json.Marshal(msg)
-	//	if err != nil {
-	//		log.Fatalf("error")
-	//	}
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//	w.Write(msgJson)
-	//	return
-	//}
-
 	w.WriteHeader(http.StatusAccepted)
 	msg := "User deleted"
 	json.NewEncoder(w).Encode(&msg)
@@ -369,18 +312,6 @@ func (h *UserHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	cud.Post = post
 
 	createQueue.QueueCreateWrite(cud)
-
-	//err := h.command.DeletePost(key)
-	//if err != nil {
-	//	msg := "Internal problem" //TODO
-	//	msgJson, err := json.Marshal(msg)
-	//	if err != nil {
-	//		log.Fatalf("error")
-	//	}
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//	w.Write(msgJson)
-	//	return
-	//}
 
 	w.WriteHeader(http.StatusAccepted)
 	msg := "Post deleted"
@@ -446,67 +377,3 @@ func (h *UserHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(&res)
 }
-
-//func (h *UserHandler) GetPost(w http.ResponseWriter, r *http.Request) {
-//	w.Header().Set("Content-Type", "application/json")
-//	if r.Method != http.MethodGet {
-//		msg := "Method Not Allowed" //TODO
-//		msgJson, err := json.Marshal(msg)
-//		if err != nil {
-//			log.Fatalf("error")
-//		}
-//		w.WriteHeader(http.StatusMethodNotAllowed)
-//		w.Write(msgJson)
-//		return
-//	}
-//
-//	vars := mux.Vars(r)
-//	key := vars["id"]
-//
-//	res, err := h.queue.GetPost(key)
-//	if err != nil {
-//		msg := "Internal problem" //TODO
-//		msgJson, err := json.Marshal(msg)
-//		if err != nil {
-//			log.Fatalf("error")
-//		}
-//		w.WriteHeader(http.StatusInternalServerError)
-//		w.Write(msgJson)
-//		return
-//	}
-//
-//	w.WriteHeader(http.StatusOK)
-//	json.NewEncoder(w).Encode(&res)
-//}
-
-//func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
-//	w.Header().Set("Content-Type", "application/json")
-//	if r.Method != http.MethodGet {
-//		msg := "Method Not Allowed" //TODO
-//		msgJson, err := json.Marshal(msg)
-//		if err != nil {
-//			log.Fatalf("error")
-//		}
-//		w.WriteHeader(http.StatusMethodNotAllowed)
-//		w.Write(msgJson)
-//		return
-//	}
-//
-//	vars := mux.Vars(r)
-//	key := vars["id"]
-//
-//	res, err := h.queue.GetUser(key)
-//	if err != nil {
-//		msg := "Internal problem" //TODO
-//		msgJson, err := json.Marshal(msg)
-//		if err != nil {
-//			log.Fatalf("error")
-//		}
-//		w.WriteHeader(http.StatusInternalServerError)
-//		w.Write(msgJson)
-//		return
-//	}
-//
-//	w.WriteHeader(http.StatusOK)
-//	json.NewEncoder(w).Encode(&res)
-//}

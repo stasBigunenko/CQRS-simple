@@ -42,9 +42,6 @@ func (c *Command) CreateUser(u models.User) (*models.User, error) {
 	r.PostRead.Title = "empty"
 	r.PostRead.Message = "empty"
 
-	//c.command.CreateReadInfo(r) function for inMemory Storage
-	//c.storage.CreateUser(r)
-
 	return &userNew, nil
 }
 
@@ -59,28 +56,6 @@ func (c *Command) CreatePost(p models.Post) (*models.Post, error) {
 		return nil, err
 	}
 
-	//userRead, err := c.command.GetUserRead(p.UserID) function for inMemory Storage
-	//userRead, err := c.command.GetUser(p.UserID)
-	//
-	//user := models.User{
-	//	ID:   userRead.User.ID,
-	//	Name: userRead.User.Name,
-	//	Age:  userRead.User.Age,
-	//}
-	//
-	//postRead := models.PostRead{
-	//	ID:      postNew.ID,
-	//	Title:   postNew.Title,
-	//	Message: postNew.Message,
-	//}
-	//
-	//r := models.Read{
-	//	User:     user,
-	//	PostRead: postRead,
-	//}
-
-	//c.command.CreateReadInfo(r) function for inMemory Storage
-	//c.storage.CreatePost(r)
 	exist := c.storage.Exist(postNew.UserID)
 	if exist {
 		var cud models.Cud
@@ -89,10 +64,6 @@ func (c *Command) CreatePost(p models.Post) (*models.Post, error) {
 		cud.Post = postNew
 		createQueue.QueueCreateCache(cud)
 		log.Println("----------QUEUE CACHE CREATE POST SENDED-------------")
-		//err = c.storage.DeletePost(id, userID)
-		//if err != nil {
-		//	return err
-		//}
 	}
 
 	return &postNew, nil
@@ -105,7 +76,6 @@ func (c *Command) UpdateUser(u models.User) (*models.User, error) {
 		return &models.User{}, err
 	}
 
-	//c.command.UpdateReadUser(userNew) function for inMemory Storage
 	exist := c.storage.Exist(u.ID)
 	if exist {
 		var cud models.Cud
@@ -114,10 +84,6 @@ func (c *Command) UpdateUser(u models.User) (*models.User, error) {
 		cud.User = userNew
 		createQueue.QueueCreateCache(cud)
 		log.Println("----------QUEUE CACHE UPDATE USER SENDED-------------")
-		//err = c.storage.UpdateUser(userNew)
-		//if err != nil {
-		//	return &models.User{}, err
-		//}
 	}
 
 	return &userNew, nil
@@ -130,7 +96,6 @@ func (c *Command) UpdatePost(p models.Post) (*models.Post, error) {
 		return nil, err
 	}
 
-	//c.command.UpdateReadPost(postNew) function for inMemory Storage
 	exist := c.storage.Exist(postNew.UserID)
 	if exist {
 		var cud models.Cud
@@ -139,10 +104,6 @@ func (c *Command) UpdatePost(p models.Post) (*models.Post, error) {
 		cud.Post = postNew
 		createQueue.QueueCreateCache(cud)
 		log.Println("----------QUEUE CACHE UPDATE POST SENDED-------------")
-		//err = c.storage.UpdatePost(postNew)
-		//if err != nil {
-		//	return &models.Post{}, err
-		//}
 	}
 
 	return &postNew, nil
@@ -154,10 +115,6 @@ func (c *Command) DeleteUser(id string) error {
 		return err
 	}
 
-	//err = c.command.DeleteReadUser(id) function for inMemory Storage
-	//if err != nil {
-	//	return err
-	//}
 	exist := c.storage.Exist(id)
 	if exist {
 		var cud models.Cud
@@ -166,10 +123,6 @@ func (c *Command) DeleteUser(id string) error {
 		cud.User.ID = id
 		createQueue.QueueCreateCache(cud)
 		log.Println("----------QUEUE CACHE DELETE USER SENDED-------------")
-		//err = c.storage.DeleteUser(id)
-		//if err != nil {
-		//	return err
-		//}
 	}
 	return nil
 }
@@ -186,11 +139,6 @@ func (c *Command) DeletePost(id string) error {
 		return err
 	}
 
-	//err = c.command.DeleteReadPost(id) function for inMemory Storage
-	//if err != nil {
-	//	return err
-	//}
-
 	userID := mp.UserID
 
 	exist := c.storage.Exist(userID)
@@ -201,10 +149,6 @@ func (c *Command) DeletePost(id string) error {
 		cud.Post = *mp
 		createQueue.QueueCreateCache(cud)
 		log.Println("----------QUEUE CACHE DELETE POST SENDED-------------")
-		//err = c.storage.DeletePost(id, userID)
-		//if err != nil {
-		//	return err
-		//}
 	}
 
 	return nil
