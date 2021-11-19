@@ -4,7 +4,6 @@ import (
 	"CQRS-simple/pkg/models"
 	"CQRS-simple/pkg/rabbitMQ/createQueue"
 	"CQRS-simple/pkg/services/readServ"
-	"CQRS-simple/pkg/services/writeServ"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"io/ioutil"
@@ -13,14 +12,12 @@ import (
 )
 
 type UserHandler struct {
-	command writeServ.WriteServInterface
-	queue   readServ.ReadServInterface
+	readServ readServ.ReadServInterface
 }
 
-func NewHandler(c writeServ.WriteServInterface, q readServ.ReadServInterface) *UserHandler {
+func NewHandler(rs readServ.ReadServInterface) *UserHandler {
 	return &UserHandler{
-		command: c,
-		queue:   q,
+		readServ: rs,
 	}
 }
 
@@ -43,12 +40,8 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodPost {
 		msg := "Method Not Allowed" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
 		return
 	}
 
@@ -68,12 +61,15 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	if err = json.Unmarshal(data, &user); err != nil {
 		msg := "Bad request" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
+		return
+	}
+
+	if user.Name == "" || user.Age == 0 {
+		msg := "Bad request"
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(&msg)
 		return
 	}
 
@@ -94,42 +90,39 @@ func (h *UserHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodPost {
 		msg := "Method Not Allowed" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
 		return
 	}
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		msg := "Bad request" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
+		return
 	}
 
 	var post models.Post
 
 	if err = json.Unmarshal(data, &post); err != nil {
 		msg := "Bad request" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
+		return
 	}
 
 	vars := mux.Vars(r)
 	key := vars["id"]
 
 	post.UserID = key
+
+	if post.Title == "" || post.Message == "" {
+		msg := "Bad request" //TODO
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(&msg)
+		return
+	}
 
 	var cud models.Cud
 
@@ -148,24 +141,16 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodPut {
 		msg := "Method Not Allowed" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
 		return
 	}
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		msg := "Bad request" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
 		return
 	}
 
@@ -173,12 +158,8 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	if err = json.Unmarshal(data, &user); err != nil {
 		msg := "Bad request" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
 		return
 	}
 
@@ -186,6 +167,13 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	key := vars["id"]
 
 	user.ID = key
+
+	if user.Name == "" && user.Age == 0 {
+		msg := "Bad request"
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(&msg)
+		return
+	}
 
 	var cud models.Cud
 
@@ -204,42 +192,39 @@ func (h *UserHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodPut {
 		msg := "Method Not Allowed" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
 		return
 	}
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		msg := "Bad request" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
+		return
 	}
 
 	var post models.Post
 
 	if err = json.Unmarshal(data, &post); err != nil {
 		msg := "Bad request" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
+		return
 	}
 
 	vars := mux.Vars(r)
 	key := vars["id"]
 
 	post.ID = key
+
+	if post.Title == "" && post.Message == "" {
+		msg := "Bad request"
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(&msg)
+		return
+	}
 
 	var cud models.Cud
 
@@ -258,12 +243,8 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodDelete {
 		msg := "Method Not Allowed" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
 		return
 	}
 
@@ -290,12 +271,8 @@ func (h *UserHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodDelete {
 		msg := "Method Not Allowed" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
 		return
 	}
 
@@ -322,27 +299,19 @@ func (h *UserHandler) GetUserPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodGet {
 		msg := "Method Not Allowed" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
 		return
 	}
 
 	vars := mux.Vars(r)
 	key := vars["id"]
 
-	res, err := h.queue.UserPosts(key)
+	res, err := h.readServ.UserPosts(key)
 	if err != nil {
 		msg := "Internal problem" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
 		return
 	}
 
@@ -354,24 +323,16 @@ func (h *UserHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodGet {
 		msg := "Method Not Allowed" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
 		return
 	}
 
-	res, err := h.queue.GetAllUsers()
+	res, err := h.readServ.GetAllUsers()
 	if err != nil {
 		msg := "Internal problem" //TODO
-		msgJson, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalf("error")
-		}
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(msgJson)
+		json.NewEncoder(w).Encode(&msg)
 	}
 
 	w.WriteHeader(http.StatusOK)

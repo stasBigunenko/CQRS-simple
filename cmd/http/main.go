@@ -4,7 +4,6 @@ import (
 	"CQRS-simple/cmd/http/myConfig"
 	"CQRS-simple/pkg/handlers"
 	"CQRS-simple/pkg/services/readServ"
-	"CQRS-simple/pkg/services/writeServ"
 	"CQRS-simple/pkg/storage/postgreSQL"
 	"CQRS-simple/pkg/storage/redis"
 	"context"
@@ -18,8 +17,6 @@ import (
 func main() {
 	config := myConfig.SetConfig()
 
-	//storage := inMemory.NewInMemory() Could be as storage for read data
-
 	// create connection with redis storage
 	storage := redis.NewRedisDB(config.RedisAddr, config.RedisDB)
 
@@ -31,12 +28,10 @@ func main() {
 		}
 	}
 
-	// interface of write functions
-	command := writeServ.NewCommand(db, storage)
 	// interface for read functions
 	queu := readServ.NewQueue(db, storage)
 	// create handler
-	userRoutes := handlers.NewHandler(&command, &queu)
+	userRoutes := handlers.NewHandler(&queu)
 
 	r := mux.NewRouter()
 

@@ -24,10 +24,6 @@ func NewCommand(c postgreSQL.DBInterface, s redis.RedisDBInterface) Command {
 
 func (c *Command) CreateUser(u models.User) (*models.User, error) {
 
-	if u.Name == "" || u.Age == 0 {
-		return nil, errors.New("some fields are missing")
-	}
-
 	userNew, err := c.command.CreateUser(u)
 	if err != nil {
 		return nil, err
@@ -46,10 +42,6 @@ func (c *Command) CreateUser(u models.User) (*models.User, error) {
 }
 
 func (c *Command) CreatePost(p models.Post) (*models.Post, error) {
-
-	if p.Title == "" || p.Message == "" {
-		return nil, errors.New("some fields are missing")
-	}
 
 	postNew, err := c.command.CreatePost(p)
 	if err != nil {
