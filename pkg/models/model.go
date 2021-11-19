@@ -35,9 +35,3 @@ type Cud struct {
 	User    User
 	Post    Post
 }
-
-type ReadQueue struct {
-	Command string
-	User    User
-	Post    Post
-}
