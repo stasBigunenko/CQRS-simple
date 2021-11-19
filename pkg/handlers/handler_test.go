@@ -1,9 +1,9 @@
 package handlers
 
 import (
+	mock2 "CQRS-simple/pkg/mock"
 	"CQRS-simple/pkg/models"
 	"CQRS-simple/pkg/services/readServ"
-	"CQRS-simple/pkg/services/readServ/mocks"
 	"errors"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +15,7 @@ import (
 )
 
 func TestUserHandler_CreateUser(t *testing.T) {
-	r := new(mocks.ReadServInterface)
+	r := new(mock2.ReadServInterface)
 
 	tests := []struct {
 		name       string
@@ -77,7 +77,7 @@ func TestUserHandler_CreateUser(t *testing.T) {
 }
 
 func TestUserHandler_CreatePost(t *testing.T) {
-	r := new(mocks.ReadServInterface)
+	r := new(mock2.ReadServInterface)
 
 	tests := []struct {
 		name       string
@@ -166,7 +166,7 @@ func TestUserHandler_CreatePost(t *testing.T) {
 }
 
 func TestUserHandler_UpdateUser(t *testing.T) {
-	r := new(mocks.ReadServInterface)
+	r := new(mock2.ReadServInterface)
 
 	tests := []struct {
 		name       string
@@ -244,7 +244,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 }
 
 func TestUserHandler_UpdatePost(t *testing.T) {
-	r := new(mocks.ReadServInterface)
+	r := new(mock2.ReadServInterface)
 
 	tests := []struct {
 		name       string
@@ -322,7 +322,7 @@ func TestUserHandler_UpdatePost(t *testing.T) {
 }
 
 func TestUserHandler_DeleteUser(t *testing.T) {
-	r := new(mocks.ReadServInterface)
+	r := new(mock2.ReadServInterface)
 
 	tests := []struct {
 		name       string
@@ -375,7 +375,7 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 }
 
 func TestUserHandler_DeletePost(t *testing.T) {
-	r := new(mocks.ReadServInterface)
+	r := new(mock2.ReadServInterface)
 
 	tests := []struct {
 		name       string
@@ -428,7 +428,7 @@ func TestUserHandler_DeletePost(t *testing.T) {
 }
 
 func TestUserHandler_GetUserPosts(t *testing.T) {
-	r := new(mocks.ReadServInterface)
+	r := new(mock2.ReadServInterface)
 	m := models.User{"00000000-0000-0000-0000-000000000000", "raz", 2}
 	p1 := models.PostRead{"00000000-0000-0000-0000-000000000000", "raz", "dva"}
 	p2 := models.PostRead{"00000000-0000-0000-0000-000000000001", "raz1", "dv1a"}
@@ -442,7 +442,7 @@ func TestUserHandler_GetUserPosts(t *testing.T) {
 	}
 	r.On("UserPosts", mock.Anything).Return(up, nil)
 
-	r2 := new(mocks.ReadServInterface)
+	r2 := new(mock2.ReadServInterface)
 	r2.On("UserPosts", mock.Anything).Return(models.UserPosts{}, errors.New("Internal problem"))
 
 	tests := []struct {
@@ -506,7 +506,7 @@ func TestUserHandler_GetUserPosts(t *testing.T) {
 }
 
 func TestUserHandler_GetAllUsers(t *testing.T) {
-	r := new(mocks.ReadServInterface)
+	r := new(mock2.ReadServInterface)
 	m := models.User{"00000000-0000-0000-0000-000000000000", "raz", 2}
 	m1 := models.User{"00000000-0000-0000-0000-000000000001", "raz", 2}
 
@@ -516,7 +516,7 @@ func TestUserHandler_GetAllUsers(t *testing.T) {
 	}
 	r.On("GetAllUsers").Return(&users, nil)
 
-	r2 := new(mocks.ReadServInterface)
+	r2 := new(mock2.ReadServInterface)
 	r2.On("GetAllUsers").Return(&[]models.User{}, errors.New("Internal problem"))
 
 	tests := []struct {

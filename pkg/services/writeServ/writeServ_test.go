@@ -1,11 +1,10 @@
 package writeServ
 
 import (
+	mock2 "CQRS-simple/pkg/mock"
 	"CQRS-simple/pkg/models"
 	"CQRS-simple/pkg/storage/postgreSQL"
-	"CQRS-simple/pkg/storage/postgreSQL/mocks"
 	"CQRS-simple/pkg/storage/redis"
-	mocks2 "CQRS-simple/pkg/storage/redis/mocks"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -13,15 +12,15 @@ import (
 )
 
 func TestWriteServ_CreateUser(t *testing.T) {
-	postgeSQLDB := new(mocks.DBInterface)
-	redisDB := new(mocks2.RedisDBInterface)
+	postgeSQLDB := new(mock2.DBInterface)
+	redisDB := new(mock2.RedisDBInterface)
 
 	u := models.User{Name: "Stas", Age: 12}
 	u1 := models.User{ID: "00000000-0000-0000-0000-000000000000", Name: "Stas", Age: 12}
 
 	postgeSQLDB.On("CreateUser", u).Return(u1, nil)
 
-	postgeSQLDB2 := new(mocks.DBInterface)
+	postgeSQLDB2 := new(mock2.DBInterface)
 	postgeSQLDB2.On("CreateUser", mock.Anything).Return(models.User{}, errors.New("couldn't create user in database"))
 
 	tests := []struct {
@@ -62,15 +61,15 @@ func TestWriteServ_CreateUser(t *testing.T) {
 }
 
 func TestWriteServ_CreatePost(t *testing.T) {
-	postgeSQLDB := new(mocks.DBInterface)
-	redisDB := new(mocks2.RedisDBInterface)
+	postgeSQLDB := new(mock2.DBInterface)
+	redisDB := new(mock2.RedisDBInterface)
 
 	p := models.Post{UserID: "00000000-0000-0000-0000-000000000000", Title: "asd", Message: "dsa"}
 	p1 := models.Post{ID: "00000000-0000-0000-0000-000000000000", UserID: "00000000-0000-0000-0000-000000000000", Title: "asd", Message: "dsa"}
 	postgeSQLDB.On("CreatePost", p).Return(p1, nil)
 	redisDB.On("Exist", mock.Anything).Return(false)
 
-	postgeSQLDB2 := new(mocks.DBInterface)
+	postgeSQLDB2 := new(mock2.DBInterface)
 	postgeSQLDB2.On("CreatePost", models.Post{}).Return(models.Post{}, errors.New("couldn't create user in database"))
 
 	tests := []struct {
@@ -112,14 +111,14 @@ func TestWriteServ_CreatePost(t *testing.T) {
 }
 
 func TestWriteServ_UpdateUser(t *testing.T) {
-	postgeSQLDB := new(mocks.DBInterface)
-	redisDB := new(mocks2.RedisDBInterface)
+	postgeSQLDB := new(mock2.DBInterface)
+	redisDB := new(mock2.RedisDBInterface)
 
 	u1 := models.User{ID: "00000000-0000-0000-0000-000000000000", Name: "asd", Age: 12}
 	postgeSQLDB.On("UpdateUser", u1).Return(u1, nil)
 	redisDB.On("Exist", mock.Anything).Return(false)
 
-	postgeSQLDB2 := new(mocks.DBInterface)
+	postgeSQLDB2 := new(mock2.DBInterface)
 	postgeSQLDB2.On("UpdateUser", mock.Anything).Return(models.User{}, errors.New("couldn't find user"))
 
 	tests := []struct {
@@ -161,14 +160,14 @@ func TestWriteServ_UpdateUser(t *testing.T) {
 }
 
 func TestWriteServ_UpdatePost(t *testing.T) {
-	postgeSQLDB := new(mocks.DBInterface)
-	redisDB := new(mocks2.RedisDBInterface)
+	postgeSQLDB := new(mock2.DBInterface)
+	redisDB := new(mock2.RedisDBInterface)
 
 	p1 := models.Post{ID: "00000000-0000-0000-0000-000000000000", UserID: "00000000-0000-0000-0000-000000000000", Title: "asd", Message: "dsa"}
 	postgeSQLDB.On("UpdatePost", p1).Return(p1, nil)
 	redisDB.On("Exist", mock.Anything).Return(false)
 
-	postgeSQLDB2 := new(mocks.DBInterface)
+	postgeSQLDB2 := new(mock2.DBInterface)
 	postgeSQLDB2.On("UpdatePost", mock.Anything).Return(models.Post{}, errors.New("couldn't find post"))
 
 	tests := []struct {
@@ -210,14 +209,14 @@ func TestWriteServ_UpdatePost(t *testing.T) {
 }
 
 func TestWriteServ_DeleteUser(t *testing.T) {
-	postgeSQLDB := new(mocks.DBInterface)
-	redisDB := new(mocks2.RedisDBInterface)
+	postgeSQLDB := new(mock2.DBInterface)
+	redisDB := new(mock2.RedisDBInterface)
 
 	u1 := "00000000-0000-0000-0000-000000000000"
 	postgeSQLDB.On("DeleteUser", u1).Return(nil)
 	redisDB.On("Exist", mock.Anything).Return(false)
 
-	postgeSQLDB2 := new(mocks.DBInterface)
+	postgeSQLDB2 := new(mock2.DBInterface)
 	postgeSQLDB2.On("DeleteUser", mock.Anything).Return(errors.New("couldn't delete user"))
 
 	tests := []struct {
@@ -255,8 +254,8 @@ func TestWriteServ_DeleteUser(t *testing.T) {
 }
 
 func TestWriteServ_DeletePost(t *testing.T) {
-	postgeSQLDB := new(mocks.DBInterface)
-	redisDB := new(mocks2.RedisDBInterface)
+	postgeSQLDB := new(mock2.DBInterface)
+	redisDB := new(mock2.RedisDBInterface)
 
 	p1 := "00000000-0000-0000-0000-000000000000"
 	//p := models.Post{ID: "00000000-0000-0000-	0000-000000000000", UserID: "00000000-0000-0000-0000-000000000000", Title: "asd", Message: "dsa"}
@@ -267,7 +266,7 @@ func TestWriteServ_DeletePost(t *testing.T) {
 	postgeSQLDB.On("GetPostRead", mock.Anything).Return(ppp, nil)
 	postgeSQLDB.On("DeletePost", p1).Return(nil)
 
-	postgeSQLDB2 := new(mocks.DBInterface)
+	postgeSQLDB2 := new(mock2.DBInterface)
 	postgeSQLDB2.On("GetPostRead", mock.Anything).Return(models.Read{}, errors.New("user doesn't exist"))
 
 	tests := []struct {
@@ -315,8 +314,8 @@ func TestWriteServ_DeletePost(t *testing.T) {
 }
 
 func TestWriteServ_GetPost(t *testing.T) {
-	postgeSQLDB := new(mocks.DBInterface)
-	redisDB := new(mocks2.RedisDBInterface)
+	postgeSQLDB := new(mock2.DBInterface)
+	redisDB := new(mock2.RedisDBInterface)
 
 	p1 := "00000000-0000-0000-0000-000000000000"
 	pp := models.PostRead{ID: "00000000-0000-0000-0000-000000000000", Title: "asd", Message: "dsa"}
@@ -326,7 +325,7 @@ func TestWriteServ_GetPost(t *testing.T) {
 
 	p2 := "00000000-0000-0000-0000-00000000000"
 
-	postgeSQLDB2 := new(mocks.DBInterface)
+	postgeSQLDB2 := new(mock2.DBInterface)
 	postgeSQLDB2.On("GetPostRead", mock.Anything).Return(models.Read{}, errors.New("user doesn't exist"))
 
 	tests := []struct {

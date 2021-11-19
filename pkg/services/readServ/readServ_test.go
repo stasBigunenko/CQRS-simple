@@ -1,11 +1,10 @@
 package readServ
 
 import (
+	mock2 "CQRS-simple/pkg/mock"
 	"CQRS-simple/pkg/models"
 	"CQRS-simple/pkg/storage/postgreSQL"
-	"CQRS-simple/pkg/storage/postgreSQL/mocks"
 	"CQRS-simple/pkg/storage/redis"
-	mocks2 "CQRS-simple/pkg/storage/redis/mocks"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -13,8 +12,8 @@ import (
 )
 
 func TestReadServ_GetAllUsers(t *testing.T) {
-	postgeSQLDB := new(mocks.DBInterface)
-	redisDB := new(mocks2.RedisDBInterface)
+	postgeSQLDB := new(mock2.DBInterface)
+	redisDB := new(mock2.RedisDBInterface)
 
 	posts := []models.User{
 		{"00000000-0000-0000-0000-000000000000", "Stas", 12},
@@ -33,8 +32,8 @@ func TestReadServ_GetAllUsers(t *testing.T) {
 	postgeSQLDB.On("GetPosts", mock.Anything).Return(postsRead, nil)
 	redisDB.On("CreatePost", mock.Anything).Return(models.PostRead{}, nil)
 
-	postgeSQLDB2 := new(mocks.DBInterface)
-	redisDB2 := new(mocks2.RedisDBInterface)
+	postgeSQLDB2 := new(mock2.DBInterface)
+	redisDB2 := new(mock2.RedisDBInterface)
 	postgeSQLDB2.On("GetAllUsers").Return(&[]models.User{}, errors.New("db problems"))
 
 	tests := []struct {
@@ -73,8 +72,8 @@ func TestReadServ_GetAllUsers(t *testing.T) {
 }
 
 func TestReadServ_UserPosts(t *testing.T) {
-	postgeSQLDB := new(mocks.DBInterface)
-	redisDB := new(mocks2.RedisDBInterface)
+	postgeSQLDB := new(mock2.DBInterface)
+	redisDB := new(mock2.RedisDBInterface)
 
 	m := models.User{"00000000-0000-0000-0000-000000000000", "Stas", 12}
 	p1 := models.PostRead{"00000000-0000-0000-0000-000000000000", "raz", "dva"}
@@ -89,8 +88,8 @@ func TestReadServ_UserPosts(t *testing.T) {
 	}
 	redisDB.On("GetUserPosts", m.ID).Return(up, nil)
 
-	postgeSQLDB2 := new(mocks.DBInterface)
-	redisDB2 := new(mocks2.RedisDBInterface)
+	postgeSQLDB2 := new(mock2.DBInterface)
+	redisDB2 := new(mock2.RedisDBInterface)
 
 	mm := models.Read{User: m}
 	redisDB2.On("GetUserPosts", m.ID).Return(models.UserPosts{}, errors.New("no such user"))
