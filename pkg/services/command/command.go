@@ -3,8 +3,8 @@ package command
 import (
 	"CQRS-simple/pkg/models"
 	"CQRS-simple/pkg/rabbitMQ/createQueue"
-	"CQRS-simple/pkg/storage/inMemory"
 	"CQRS-simple/pkg/storage/postgreSQL"
+	"CQRS-simple/pkg/storage/redis"
 	"errors"
 	"github.com/google/uuid"
 	"log"
@@ -12,10 +12,10 @@ import (
 
 type Command struct {
 	command postgreSQL.DBInterface
-	storage inMemory.InMemoryInterface
+	storage redis.RedisDBInterface
 }
 
-func NewCommand(c postgreSQL.DBInterface, s inMemory.InMemoryInterface) Command {
+func NewCommand(c postgreSQL.DBInterface, s redis.RedisDBInterface) Command {
 	return Command{
 		command: c,
 		storage: s,

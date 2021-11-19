@@ -2,16 +2,16 @@ package cacheConsumer
 
 import (
 	"CQRS-simple/pkg/models"
-	"CQRS-simple/pkg/storage/inMemory"
 	"CQRS-simple/pkg/storage/postgreSQL"
+	"CQRS-simple/pkg/storage/redis"
 )
 
 type CacheConsumer struct {
 	dbPostgreSQL postgreSQL.DBInterface
-	dbRedis      inMemory.InMemoryInterface
+	dbRedis      redis.RedisDBInterface
 }
 
-func NewCacheConsumer(dbp postgreSQL.DBInterface, dbr inMemory.InMemoryInterface) *CacheConsumer {
+func NewCacheConsumer(dbp postgreSQL.DBInterface, dbr redis.RedisDBInterface) *CacheConsumer {
 	return &CacheConsumer{
 		dbPostgreSQL: dbp,
 		dbRedis:      dbr,

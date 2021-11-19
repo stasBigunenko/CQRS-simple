@@ -1,8 +1,8 @@
-package inMemory
+package redis
 
 import "CQRS-simple/pkg/models"
 
-type InMemoryInterface interface {
+type RedisDBInterface interface {
 	CreateUser(ur models.Read) (models.User, error)
 	CreatePost(ur models.Post) (models.PostRead, error)
 	GetAllUsers() (*[]models.User, error)

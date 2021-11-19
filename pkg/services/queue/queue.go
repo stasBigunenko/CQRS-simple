@@ -2,17 +2,17 @@ package queue
 
 import (
 	"CQRS-simple/pkg/models"
-	"CQRS-simple/pkg/storage/inMemory"
 	"CQRS-simple/pkg/storage/postgreSQL"
+	"CQRS-simple/pkg/storage/redis"
 	"log"
 )
 
 type Queue struct {
 	queue   postgreSQL.DBInterface
-	storage inMemory.InMemoryInterface
+	storage redis.RedisDBInterface
 }
 
-func NewQueue(q postgreSQL.DBInterface, s inMemory.InMemoryInterface) Queue {
+func NewQueue(q postgreSQL.DBInterface, s redis.RedisDBInterface) Queue {
 	return Queue{
 		queue:   q,
 		storage: s,
