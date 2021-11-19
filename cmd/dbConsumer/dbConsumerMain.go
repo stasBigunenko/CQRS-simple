@@ -18,27 +18,6 @@ import (
 func main() {
 	config := myConfig.SetConfig()
 
-	//storage := inMemory.NewInMemory() Could be as storage for read data
-
-	// create connection with redis storage
-	storage := redis.NewRedisDB(config.RedisAddr, config.RedisDB)
-
-	// create connection with postgreSQL storage
-	db, err := postgreSQL.NewPDB(config.PostgresHost, config.PostgresPort, config.PostgresUser, config.PostgresPsw, config.PostgresDB, config.PostgresSSL)
-	if err != nil {
-		if err != nil {
-			log.Fatalf("failed to connect postgreSQL: %s", err)
-		}
-	}
-
-	// interface of write functions
-	writeServ := writeServ.NewWriteServ(db, storage)
-	// interface for read functions
-	readServ := readServ.NewReadServ(db, storage)
-	// create handler
-
-	dbConsumer := dbConsumer.NewDBConsumer(&writeServ, &readServ)
-
 	path := os.Getenv("RMQ_PATH")
 	if path == "" {
 		path = "localhost:5672/"
@@ -85,6 +64,25 @@ func main() {
 	if msgs == nil {
 		os.Exit(3)
 	}
+
+	// create connection with redis storage
+	storage := redis.NewRedisDB(config.RedisAddr, config.RedisDB)
+
+	// create connection with postgreSQL storage
+	db, err := postgreSQL.NewPDB(config.PostgresHost, config.PostgresPort, config.PostgresUser, config.PostgresPsw, config.PostgresDB, config.PostgresSSL)
+	if err != nil {
+		if err != nil {
+			log.Fatalf("failed to connect postgreSQL: %s", err)
+		}
+	}
+
+	// interface of write functions
+	writeServ := writeServ.NewWriteServ(db, storage)
+	// interface for read functions
+	readServ := readServ.NewReadServ(db, storage)
+	// create handler
+
+	dbConsumer := dbConsumer.NewDBConsumer(&writeServ, &readServ)
 
 	forever := make(chan bool)
 	go func() {
