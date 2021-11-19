@@ -4,7 +4,6 @@ import (
 	"CQRS-simple/cmd/http/myConfig"
 	"CQRS-simple/pkg/models"
 	"CQRS-simple/pkg/rabbitMQ/dbConsumer"
-	"CQRS-simple/pkg/services/readServ"
 	"CQRS-simple/pkg/services/writeServ"
 	"CQRS-simple/pkg/storage/postgreSQL"
 	"CQRS-simple/pkg/storage/redis"
@@ -79,10 +78,8 @@ func main() {
 	// interface of write functions
 	writeServ := writeServ.NewWriteServ(db, storage)
 	// interface for read functions
-	readServ := readServ.NewReadServ(db, storage)
-	// create handler
 
-	dbConsumer := dbConsumer.NewDBConsumer(&writeServ, &readServ)
+	dbConsumer := dbConsumer.NewDBConsumer(&writeServ)
 
 	forever := make(chan bool)
 	go func() {

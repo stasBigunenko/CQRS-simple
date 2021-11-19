@@ -2,20 +2,17 @@ package dbConsumer
 
 import (
 	"CQRS-simple/pkg/models"
-	"CQRS-simple/pkg/services/readServ"
 	"CQRS-simple/pkg/services/writeServ"
 	"log"
 )
 
 type DBConsumer struct {
 	command writeServ.WriteServInterface
-	queue   readServ.ReadServInterface
 }
 
-func NewDBConsumer(c writeServ.WriteServInterface, q readServ.ReadServInterface) *DBConsumer {
+func NewDBConsumer(c writeServ.WriteServInterface) *DBConsumer {
 	return &DBConsumer{
 		command: c,
-		queue:   q,
 	}
 }
 

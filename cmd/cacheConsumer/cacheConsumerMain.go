@@ -4,7 +4,6 @@ import (
 	"CQRS-simple/cmd/http/myConfig"
 	"CQRS-simple/pkg/models"
 	"CQRS-simple/pkg/rabbitMQ/cacheConsumer"
-	"CQRS-simple/pkg/storage/postgreSQL"
 	"CQRS-simple/pkg/storage/redis"
 	"encoding/json"
 	"fmt"
@@ -64,17 +63,9 @@ func main() {
 	}
 
 	// create connection with redis storage
-	storage := redis.NewRedisDB(config.RedisAddr, config.RedisDB)
+	redisDB := redis.NewRedisDB(config.RedisAddr, config.RedisDB)
 
-	// create connection with postgreSQL storage
-	db, err := postgreSQL.NewPDB(config.PostgresHost, config.PostgresPort, config.PostgresUser, config.PostgresPsw, config.PostgresDB, config.PostgresSSL)
-	if err != nil {
-		if err != nil {
-			log.Fatalf("failed to connect postgreSQL: %s", err)
-		}
-	}
-
-	cacheConsumer := cacheConsumer.NewCacheConsumer(db, storage)
+	cacheConsumer := cacheConsumer.NewCacheConsumer(redisDB)
 
 	forever := make(chan bool)
 	go func() {
