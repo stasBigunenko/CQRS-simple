@@ -27,7 +27,6 @@ func NewPDB(host string, port string, user string, psw string, dbname string, ss
 
 	database.Pdb.Exec("CREATE TABLE IF NOT EXISTS users (\n    userID VARCHAR(40) PRIMARY KEY NOT NULL,\n    name VARCHAR(50) NOT NULL,\n  age INT);")
 	database.Pdb.Exec("CREATE TABLE IF NOT EXISTS posts (\n    postID VARCHAR(40) PRIMARY KEY NOT NULL,\n    userID VARCHAR(50) NOT NULL,\n    title VARCHAR(50) NOT NULL\n, message VARCHAR(155));")
-	//database.Pdb.Exec("CREATE TABLE read (\n    userID VARCHAR(40) NOT NULL,\n    name VARCHAR(50) NOT NULL,\n  age INT,\n postID VARCHAR(40)\n, title VARCHAR(50) NOT NULL\n, message VARCHAR(155));")
 
 	return database, nil
 }
@@ -66,30 +65,6 @@ func (pdb *PostgresDB) CreatePost(p models.Post) (models.Post, error) {
 	p.ID = idStr
 
 	return p, nil
-}
-
-func (pdb *PostgresDB) CreateReadInfo(res models.Read) error {
-
-	_, err := pdb.Pdb.Exec(
-		"INSERT INTO read (userID, name, age, postID, title, message) VALUES ($1, $2, $3, $4, $5, $6)", res.User.ID, res.User.Name, res.User.Age, res.PostRead.ID, res.PostRead.Title, res.PostRead.Message)
-	if err != nil {
-		return errors.New("couldn't create user in database")
-	}
-
-	return nil
-}
-
-func (pdb *PostgresDB) GetUserRead(id string) (models.Read, error) {
-
-	var u models.Read
-
-	err := pdb.Pdb.QueryRow(
-		`SELECT userID, name, age FROM read WHERE userID=$1`, id).Scan(&u.User.ID, &u.User.Name, &u.User.Age)
-	if err != nil {
-		return models.Read{}, errors.New("user doesn't exist")
-	}
-
-	return u, nil
 }
 
 func (pdb *PostgresDB) GetPosts(userID string) ([]models.PostRead, error) {
@@ -229,69 +204,6 @@ func (pdb *PostgresDB) DeletePost(id string) error {
 		`DELETE FROM posts where postID = $1`, id)
 	if err != nil {
 		return errors.New("couldn't delete post")
-	}
-
-	return nil
-}
-
-func (pdb *PostgresDB) DeleteReadUser(id string) error {
-	pdb.mu.Lock()
-	defer pdb.mu.Unlock()
-
-	_, err := pdb.Pdb.Exec(
-		`DELETE FROM read where userID = $1`, id)
-	if err != nil {
-		return errors.New("couldn't delete post")
-	}
-
-	return nil
-}
-
-func (pdb *PostgresDB) DeleteReadPost(id string) error {
-	pdb.mu.Lock()
-	defer pdb.mu.Unlock()
-
-	_, err := pdb.Pdb.Exec(
-		`DELETE FROM read where postID = $1`, id)
-	if err != nil {
-		return errors.New("couldn't delete post")
-	}
-
-	return nil
-}
-
-func (pdb *PostgresDB) UpdateReadUser(u models.User) error {
-
-	pdb.mu.Lock()
-	defer pdb.mu.Unlock()
-
-	rows, err := pdb.Pdb.Query(
-		`SELECT userID, name, age FROM read WHERE userID=$1`, u.ID)
-	if err != nil {
-		return errors.New("db problems")
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		_, err = pdb.Pdb.Exec(
-			`UPDATE read SET name=$1, age=$2 WHERE userID=$3`, u.Name, u.Age, u.ID)
-		if err != nil {
-			return errors.New("couldn't update post")
-		}
-	}
-
-	return nil
-}
-
-func (pdb *PostgresDB) UpdateReadPost(p models.Post) error {
-
-	pdb.mu.Lock()
-	defer pdb.mu.Unlock()
-
-	_, err := pdb.Pdb.Exec(
-		`UPDATE read SET title=$1, message=$2 WHERE postID=$3`, p.Title, p.Message, p.ID)
-	if err != nil {
-		return errors.New("couldn't update post")
 	}
 
 	return nil

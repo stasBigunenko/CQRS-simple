@@ -49,11 +49,6 @@ func (c *CacheConsumer) ReceivedPost(cud models.Cud) {
 
 func (c *CacheConsumer) UpdateUser(u models.User) {
 	c.dbRedis.UpdateUser(u)
-	//err := c.dbRedis.UpdateUser(u)
-	//err = c.storage.UpdateUser(userNew)
-	//if err != nil {
-	//	return err
-	//}
 }
 
 func (c *CacheConsumer) DeleteUser(u models.User) {
