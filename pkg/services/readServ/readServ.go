@@ -7,64 +7,64 @@ import (
 	"log"
 )
 
-type Queue struct {
-	queue   postgreSQL.DBInterface
-	storage redis.RedisDBInterface
+type ReadServ struct {
+	postgresDB postgreSQL.DBInterface
+	redisDB    redis.RedisDBInterface
 }
 
-func NewQueue(q postgreSQL.DBInterface, s redis.RedisDBInterface) Queue {
-	return Queue{
-		queue:   q,
-		storage: s,
+func NewReadServ(p postgreSQL.DBInterface, s redis.RedisDBInterface) ReadServ {
+	return ReadServ{
+		postgresDB: p,
+		redisDB:    s,
 	}
 }
 
-func (q *Queue) GetAllUsers() (*[]models.User, error) {
+func (r *ReadServ) GetAllUsers() (*[]models.User, error) {
 
-	users, err := q.queue.GetAllUsers()
+	users, err := r.postgresDB.GetAllUsers()
 	if err != nil {
 		return &[]models.User{}, err
 	}
 
 	for _, val := range *users {
-		var r models.Read
-		r.User = val
-		q.storage.CreateUser(r)
-		res, err := q.queue.GetPosts(r.User.ID)
+		var rr models.Read
+		rr.User = val
+		r.redisDB.CreateUser(rr)
+		res, err := r.postgresDB.GetPosts(rr.User.ID)
 		if err != nil {
 			continue
 		}
 		for _, p := range res {
 			var pr models.Post
 			pr.ID = p.ID
-			pr.UserID = r.User.ID
+			pr.UserID = rr.User.ID
 			pr.Title = p.Title
 			pr.Message = p.Message
-			q.storage.CreatePost(pr)
+			r.redisDB.CreatePost(pr)
 		}
 	}
 
 	return users, nil
 }
 
-func (q *Queue) UserPosts(userID string) (models.UserPosts, error) {
+func (r *ReadServ) UserPosts(userID string) (models.UserPosts, error) {
 	var postRead models.UserPosts
-	postRead, err := q.storage.GetUserPosts(userID)
+	postRead, err := r.redisDB.GetUserPosts(userID)
 	log.Printf("postRead in Queue before if = %v\n", postRead)
 	if err != nil {
-		user, err := q.queue.GetUser(userID)
+		user, err := r.postgresDB.GetUser(userID)
 		if err != nil {
 			return models.UserPosts{}, err
 		}
-		postRead.User, _ = q.storage.CreateUser(user)
-		res, _ := q.queue.GetPosts(userID)
+		postRead.User, _ = r.redisDB.CreateUser(user)
+		res, _ := r.postgresDB.GetPosts(userID)
 		for _, p := range res {
 			var pr models.Post
 			pr.ID = p.ID
 			pr.UserID = userID
 			pr.Title = p.Title
 			pr.Message = p.Message
-			post, _ := q.storage.CreatePost(pr)
+			post, _ := r.redisDB.CreatePost(pr)
 			postRead.Posts = append(postRead.Posts, post)
 		}
 	}

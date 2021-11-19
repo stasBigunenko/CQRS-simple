@@ -32,12 +32,12 @@ func main() {
 	}
 
 	// interface of write functions
-	command := writeServ.NewCommand(db, storage)
+	writeServ := writeServ.NewWriteServ(db, storage)
 	// interface for read functions
-	queu := readServ.NewQueue(db, storage)
+	readServ := readServ.NewReadServ(db, storage)
 	// create handler
 
-	dbConsumer := dbConsumer.NewDBConsumer(&command, &queu)
+	dbConsumer := dbConsumer.NewDBConsumer(&writeServ, &readServ)
 
 	path := os.Getenv("RMQ_PATH")
 	if path == "" {

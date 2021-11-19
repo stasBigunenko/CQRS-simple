@@ -10,21 +10,21 @@ import (
 	"log"
 )
 
-type Command struct {
-	command postgreSQL.DBInterface
-	storage redis.RedisDBInterface
+type WriteServ struct {
+	postgresDB postgreSQL.DBInterface
+	redisDB    redis.RedisDBInterface
 }
 
-func NewCommand(c postgreSQL.DBInterface, s redis.RedisDBInterface) Command {
-	return Command{
-		command: c,
-		storage: s,
+func NewWriteServ(p postgreSQL.DBInterface, r redis.RedisDBInterface) WriteServ {
+	return WriteServ{
+		postgresDB: p,
+		redisDB:    r,
 	}
 }
 
-func (c *Command) CreateUser(u models.User) (*models.User, error) {
+func (w *WriteServ) CreateUser(u models.User) (*models.User, error) {
 
-	userNew, err := c.command.CreateUser(u)
+	userNew, err := w.postgresDB.CreateUser(u)
 	if err != nil {
 		return nil, err
 	}
@@ -41,14 +41,14 @@ func (c *Command) CreateUser(u models.User) (*models.User, error) {
 	return &userNew, nil
 }
 
-func (c *Command) CreatePost(p models.Post) (*models.Post, error) {
+func (w *WriteServ) CreatePost(p models.Post) (*models.Post, error) {
 
-	postNew, err := c.command.CreatePost(p)
+	postNew, err := w.postgresDB.CreatePost(p)
 	if err != nil {
 		return nil, err
 	}
 
-	exist := c.storage.Exist(postNew.UserID)
+	exist := w.redisDB.Exist(postNew.UserID)
 	if exist {
 		var cud models.Cud
 		cud.Model = "post"
@@ -61,14 +61,14 @@ func (c *Command) CreatePost(p models.Post) (*models.Post, error) {
 	return &postNew, nil
 }
 
-func (c *Command) UpdateUser(u models.User) (*models.User, error) {
+func (w *WriteServ) UpdateUser(u models.User) (*models.User, error) {
 
-	userNew, err := c.command.UpdateUser(u)
+	userNew, err := w.postgresDB.UpdateUser(u)
 	if err != nil {
 		return &models.User{}, err
 	}
 
-	exist := c.storage.Exist(u.ID)
+	exist := w.redisDB.Exist(u.ID)
 	if exist {
 		var cud models.Cud
 		cud.Model = "user"
@@ -81,14 +81,14 @@ func (c *Command) UpdateUser(u models.User) (*models.User, error) {
 	return &userNew, nil
 }
 
-func (c *Command) UpdatePost(p models.Post) (*models.Post, error) {
+func (w *WriteServ) UpdatePost(p models.Post) (*models.Post, error) {
 
-	postNew, err := c.command.UpdatePost(p)
+	postNew, err := w.postgresDB.UpdatePost(p)
 	if err != nil {
 		return nil, err
 	}
 
-	exist := c.storage.Exist(postNew.UserID)
+	exist := w.redisDB.Exist(postNew.UserID)
 	if exist {
 		var cud models.Cud
 		cud.Model = "post"
@@ -101,13 +101,13 @@ func (c *Command) UpdatePost(p models.Post) (*models.Post, error) {
 	return &postNew, nil
 }
 
-func (c *Command) DeleteUser(id string) error {
-	err := c.command.DeleteUser(id)
+func (w *WriteServ) DeleteUser(id string) error {
+	err := w.postgresDB.DeleteUser(id)
 	if err != nil {
 		return err
 	}
 
-	exist := c.storage.Exist(id)
+	exist := w.redisDB.Exist(id)
 	if exist {
 		var cud models.Cud
 		cud.Model = "user"
@@ -119,21 +119,21 @@ func (c *Command) DeleteUser(id string) error {
 	return nil
 }
 
-func (c *Command) DeletePost(id string) error {
+func (w *WriteServ) DeletePost(id string) error {
 
-	mp, err := c.GetPost(id)
+	mp, err := w.GetPost(id)
 	if err != nil {
 		return err
 	}
 
-	err = c.command.DeletePost(id)
+	err = w.postgresDB.DeletePost(id)
 	if err != nil {
 		return err
 	}
 
 	userID := mp.UserID
 
-	exist := c.storage.Exist(userID)
+	exist := w.redisDB.Exist(userID)
 	if exist {
 		var cud models.Cud
 		cud.Model = "post"
@@ -146,14 +146,14 @@ func (c *Command) DeletePost(id string) error {
 	return nil
 }
 
-func (c *Command) GetPost(id string) (*models.Post, error) {
+func (w *WriteServ) GetPost(id string) (*models.Post, error) {
 
 	_, err := uuid.Parse(id)
 	if err != nil {
 		return nil, errors.New("service: couldn't parse id")
 	}
 
-	read, err := c.command.GetPostRead(id)
+	read, err := w.postgresDB.GetPostRead(id)
 	if err != nil {
 		return nil, err
 	}
