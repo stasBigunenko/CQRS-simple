@@ -10,10 +10,10 @@ Scheme of the app:
 
 Writing the data to db:
 
-http: request for writing -> sending the message to the RabbitMQ
-dbConsumer: reading from queue -> writing to PostgreSQL
-                               -> creating queue to change the data in cache storage, if cache storage have these data
-cacheConsumer: reading from queue -> and update data in cache
+http: request for writing -> sending the message to the RabbitMQ.
+dbConsumer: reading from queue -> writing to PostgreSQL,
+                               -> creating queue to change the data in cache storage, if cache storage have these data.
+cacheConsumer: reading from queue -> and update data in cache.
 
 Reading data:
 
