@@ -34,7 +34,7 @@ func SetConfig() *Config {
 
 	config.PostgresHost = os.Getenv("POSTGRES_HOST")
 	if config.PostgresHost == "" {
-		config.PostgresHost = "postgres"
+		config.PostgresHost = "localhost"
 	}
 
 	config.PostgresPort = os.Getenv("POSTGRES_PORT")
@@ -44,7 +44,7 @@ func SetConfig() *Config {
 
 	config.PostgresUser = os.Getenv("POSTGRES_USER")
 	if config.PostgresUser == "" {
-		config.PostgresUser = "localhost"
+		config.PostgresUser = "postgres"
 	}
 
 	config.PostgresPsw = os.Getenv("POSTGRES_PASSWORD")
