@@ -3,6 +3,7 @@ package main
 import (
 	"CQRS-simple/cmd/http/myConfig"
 	"CQRS-simple/pkg/models"
+	createQueue2 "CQRS-simple/pkg/rabbitMQ/createQueue"
 	"CQRS-simple/pkg/rabbitMQ/dbConsumer"
 	"CQRS-simple/pkg/services/writeServ"
 	"CQRS-simple/pkg/storage/postgreSQL"
@@ -75,8 +76,9 @@ func main() {
 		}
 	}
 
+	createQueue := createQueue2.CreateQueue{}
 	// interface of write functions
-	writeServ := writeServ.NewWriteServ(db, storage)
+	writeServ := writeServ.NewWriteServ(db, storage, &createQueue)
 	// interface for read functions
 
 	dbConsumer := dbConsumer.NewDBConsumer(&writeServ)

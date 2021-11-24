@@ -11,11 +11,12 @@ import (
 )
 
 type WriteServ struct {
-	postgresDB postgreSQL.DBInterface
-	redisDB    redis.RedisDBInterface
+	postgresDB  postgreSQL.DBInterface
+	redisDB     redis.RedisDBInterface
+	createQueue createQueue.QueueCreateInterface
 }
 
-func NewWriteServ(p postgreSQL.DBInterface, r redis.RedisDBInterface) WriteServ {
+func NewWriteServ(p postgreSQL.DBInterface, r redis.RedisDBInterface, cq createQueue.QueueCreateInterface) WriteServ {
 	return WriteServ{
 		postgresDB: p,
 		redisDB:    r,
@@ -45,7 +46,7 @@ func (w *WriteServ) CreatePost(p models.Post) (*models.Post, error) {
 		cud.Model = "post"
 		cud.Command = "create"
 		cud.Post = postNew
-		createQueue.QueueCreateCache(cud)
+		w.createQueue.QueueCreateCache(cud)
 		log.Println("----------QUEUE CACHE CREATE POST SENDED-------------")
 	}
 
@@ -65,7 +66,7 @@ func (w *WriteServ) UpdateUser(u models.User) (*models.User, error) {
 		cud.Model = "user"
 		cud.Command = "update"
 		cud.User = userNew
-		createQueue.QueueCreateCache(cud)
+		w.createQueue.QueueCreateCache(cud)
 		log.Println("----------QUEUE CACHE UPDATE USER SENDED-------------")
 	}
 
@@ -85,7 +86,7 @@ func (w *WriteServ) UpdatePost(p models.Post) (*models.Post, error) {
 		cud.Model = "post"
 		cud.Command = "update"
 		cud.Post = postNew
-		createQueue.QueueCreateCache(cud)
+		w.createQueue.QueueCreateCache(cud)
 		log.Println("----------QUEUE CACHE UPDATE POST SENDED-------------")
 	}
 
@@ -104,7 +105,7 @@ func (w *WriteServ) DeleteUser(id string) error {
 		cud.Model = "user"
 		cud.Command = "delete"
 		cud.User.ID = id
-		createQueue.QueueCreateCache(cud)
+		w.createQueue.QueueCreateCache(cud)
 		log.Println("----------QUEUE CACHE DELETE USER SENDED-------------")
 	}
 	return nil
@@ -130,7 +131,7 @@ func (w *WriteServ) DeletePost(id string) error {
 		cud.Model = "post"
 		cud.Command = "delete"
 		cud.Post = *mp
-		createQueue.QueueCreateCache(cud)
+		w.createQueue.QueueCreateCache(cud)
 		log.Println("----------QUEUE CACHE DELETE POST SENDED-------------")
 	}
 

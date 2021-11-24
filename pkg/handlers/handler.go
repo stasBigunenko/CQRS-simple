@@ -12,12 +12,14 @@ import (
 )
 
 type UserHandler struct {
-	readServ readServ.ReadServInterface
+	readServ    readServ.ReadServInterface
+	createQueue createQueue.QueueCreateInterface
 }
 
-func NewHandler(rs readServ.ReadServInterface) *UserHandler {
+func NewHandler(rs readServ.ReadServInterface, cq createQueue.QueueCreateInterface) *UserHandler {
 	return &UserHandler{
-		readServ: rs,
+		readServ:    rs,
+		createQueue: cq,
 	}
 }
 
@@ -79,7 +81,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	cud.Command = "create"
 	cud.User = user
 
-	createQueue.QueueCreateWrite(cud)
+	h.createQueue.QueueCreateWrite(cud)
 
 	res := "user created"
 	w.WriteHeader(http.StatusCreated)
@@ -130,7 +132,7 @@ func (h *UserHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	cud.Command = "create"
 	cud.Post = post
 
-	createQueue.QueueCreateWrite(cud)
+	h.createQueue.QueueCreateWrite(cud)
 
 	res := "post created"
 	w.WriteHeader(http.StatusCreated)
@@ -181,7 +183,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	cud.Command = "update"
 	cud.User = user
 
-	createQueue.QueueCreateWrite(cud)
+	h.createQueue.QueueCreateWrite(cud)
 
 	res := "user updated"
 	w.WriteHeader(http.StatusAccepted)
@@ -232,7 +234,7 @@ func (h *UserHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	cud.Command = "update"
 	cud.Post = post
 
-	createQueue.QueueCreateWrite(cud)
+	h.createQueue.QueueCreateWrite(cud)
 
 	res := "post updated"
 	w.WriteHeader(http.StatusAccepted)
@@ -260,7 +262,7 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	cud.Command = "delete"
 	cud.User = user
 
-	createQueue.QueueCreateWrite(cud)
+	h.createQueue.QueueCreateWrite(cud)
 
 	w.WriteHeader(http.StatusAccepted)
 	msg := "User deleted"
@@ -288,7 +290,7 @@ func (h *UserHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	cud.Command = "delete"
 	cud.Post = post
 
-	createQueue.QueueCreateWrite(cud)
+	h.createQueue.QueueCreateWrite(cud)
 
 	w.WriteHeader(http.StatusAccepted)
 	msg := "Post deleted"

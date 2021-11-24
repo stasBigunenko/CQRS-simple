@@ -78,7 +78,7 @@ func pushCommentToQueue(topic string, message []byte) error {
 }
 
 // create user handler
-func QueueCreateWrite(c models.Cud) error {
+func (cq *CreateQueue) QueueCreateWrite(c models.Cud) error {
 
 	inBytes, _ := json.Marshal(c)
 	pushCommentToQueue("cud", inBytes)
@@ -86,10 +86,12 @@ func QueueCreateWrite(c models.Cud) error {
 	return nil
 }
 
-func QueueCreateCache(up models.Cud) error {
+func (cq *CreateQueue) QueueCreateCache(up models.Cud) error {
 
 	inBytes, _ := json.Marshal(up)
 	pushCommentToQueue("read", inBytes)
 
 	return nil
 }
+
+type CreateQueue struct{}

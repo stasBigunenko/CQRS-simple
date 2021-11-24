@@ -3,6 +3,7 @@ package writeServ
 import (
 	mock2 "CQRS-simple/pkg/mock"
 	"CQRS-simple/pkg/models"
+	"CQRS-simple/pkg/rabbitMQ/createQueue"
 	"CQRS-simple/pkg/storage/postgreSQL"
 	"CQRS-simple/pkg/storage/redis"
 	"errors"
@@ -14,6 +15,8 @@ import (
 func TestWriteServ_CreateUser(t *testing.T) {
 	postgeSQLDB := new(mock2.DBInterface)
 	redisDB := new(mock2.RedisDBInterface)
+	cq := new(mock2.QueueCreateInterface)
+	cq.On("QueueCreateWrite", mock.Anything).Return(nil)
 
 	u := models.User{Name: "Stas", Age: 12}
 	u1 := models.User{ID: "00000000-0000-0000-0000-000000000000", Name: "Stas", Age: 12}
@@ -27,6 +30,7 @@ func TestWriteServ_CreateUser(t *testing.T) {
 		name    string
 		pdb     postgreSQL.DBInterface
 		rdb     redis.RedisDBInterface
+		crq     createQueue.QueueCreateInterface
 		param   models.User
 		want    *models.User
 		wantErr string
@@ -35,6 +39,7 @@ func TestWriteServ_CreateUser(t *testing.T) {
 			name:    "Everything good",
 			pdb:     postgeSQLDB,
 			rdb:     redisDB,
+			crq:     cq,
 			param:   u,
 			want:    &u1,
 			wantErr: "",
@@ -43,13 +48,14 @@ func TestWriteServ_CreateUser(t *testing.T) {
 			name:    "no users in postgreSQL",
 			pdb:     postgeSQLDB2,
 			rdb:     redisDB,
+			crq:     cq,
 			want:    nil,
 			wantErr: "couldn't create user in database",
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			ws := NewWriteServ(tc.pdb, tc.rdb)
+			ws := NewWriteServ(tc.pdb, tc.rdb, tc.crq)
 			got, err := ws.CreateUser(tc.param)
 			if (err != nil) && (err.Error() != tc.wantErr) {
 				t.Errorf("error = %v, wantErr = %v", err.Error(), tc.wantErr)
@@ -63,6 +69,8 @@ func TestWriteServ_CreateUser(t *testing.T) {
 func TestWriteServ_CreatePost(t *testing.T) {
 	postgeSQLDB := new(mock2.DBInterface)
 	redisDB := new(mock2.RedisDBInterface)
+	cq := new(mock2.QueueCreateInterface)
+	cq.On("QueueCreateWrite", mock.Anything).Return(nil)
 
 	p := models.Post{UserID: "00000000-0000-0000-0000-000000000000", Title: "asd", Message: "dsa"}
 	p1 := models.Post{ID: "00000000-0000-0000-0000-000000000000", UserID: "00000000-0000-0000-0000-000000000000", Title: "asd", Message: "dsa"}
@@ -76,6 +84,7 @@ func TestWriteServ_CreatePost(t *testing.T) {
 		name    string
 		pdb     postgreSQL.DBInterface
 		rdb     redis.RedisDBInterface
+		crq     createQueue.QueueCreateInterface
 		param   models.Post
 		want    *models.Post
 		wantErr string
@@ -84,6 +93,7 @@ func TestWriteServ_CreatePost(t *testing.T) {
 			name:    "Everything good",
 			pdb:     postgeSQLDB,
 			rdb:     redisDB,
+			crq:     cq,
 			param:   p,
 			want:    &p1,
 			wantErr: "",
@@ -92,6 +102,7 @@ func TestWriteServ_CreatePost(t *testing.T) {
 			name:    "no users in postgreSQL",
 			pdb:     postgeSQLDB2,
 			rdb:     redisDB,
+			crq:     cq,
 			param:   models.Post{},
 			want:    nil,
 			wantErr: "couldn't create user in database",
@@ -99,7 +110,7 @@ func TestWriteServ_CreatePost(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			ws := NewWriteServ(tc.pdb, tc.rdb)
+			ws := NewWriteServ(tc.pdb, tc.rdb, tc.crq)
 			got, err := ws.CreatePost(tc.param)
 			if (err != nil) && (err.Error() != tc.wantErr) {
 				t.Errorf("error = %v, wantErr = %v", err.Error(), tc.wantErr)
@@ -113,6 +124,8 @@ func TestWriteServ_CreatePost(t *testing.T) {
 func TestWriteServ_UpdateUser(t *testing.T) {
 	postgeSQLDB := new(mock2.DBInterface)
 	redisDB := new(mock2.RedisDBInterface)
+	cq := new(mock2.QueueCreateInterface)
+	cq.On("QueueCreateWrite", mock.Anything).Return(nil)
 
 	u1 := models.User{ID: "00000000-0000-0000-0000-000000000000", Name: "asd", Age: 12}
 	postgeSQLDB.On("UpdateUser", u1).Return(u1, nil)
@@ -125,6 +138,7 @@ func TestWriteServ_UpdateUser(t *testing.T) {
 		name    string
 		pdb     postgreSQL.DBInterface
 		rdb     redis.RedisDBInterface
+		crq     createQueue.QueueCreateInterface
 		param   models.User
 		want    *models.User
 		wantErr string
@@ -133,6 +147,7 @@ func TestWriteServ_UpdateUser(t *testing.T) {
 			name:    "Everything good",
 			pdb:     postgeSQLDB,
 			rdb:     redisDB,
+			crq:     cq,
 			param:   u1,
 			want:    &u1,
 			wantErr: "",
@@ -141,6 +156,7 @@ func TestWriteServ_UpdateUser(t *testing.T) {
 			name:    "no users in postgreSQL",
 			pdb:     postgeSQLDB2,
 			rdb:     redisDB,
+			crq:     cq,
 			param:   models.User{},
 			want:    &models.User{},
 			wantErr: "couldn't find user",
@@ -148,7 +164,7 @@ func TestWriteServ_UpdateUser(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			ws := NewWriteServ(tc.pdb, tc.rdb)
+			ws := NewWriteServ(tc.pdb, tc.rdb, tc.crq)
 			got, err := ws.UpdateUser(tc.param)
 			if (err != nil) && (err.Error() != tc.wantErr) {
 				t.Errorf("error = %v, wantErr = %v", err.Error(), tc.wantErr)
@@ -162,6 +178,8 @@ func TestWriteServ_UpdateUser(t *testing.T) {
 func TestWriteServ_UpdatePost(t *testing.T) {
 	postgeSQLDB := new(mock2.DBInterface)
 	redisDB := new(mock2.RedisDBInterface)
+	cq := new(mock2.QueueCreateInterface)
+	cq.On("QueueCreateWrite", mock.Anything).Return(nil)
 
 	p1 := models.Post{ID: "00000000-0000-0000-0000-000000000000", UserID: "00000000-0000-0000-0000-000000000000", Title: "asd", Message: "dsa"}
 	postgeSQLDB.On("UpdatePost", p1).Return(p1, nil)
@@ -174,6 +192,7 @@ func TestWriteServ_UpdatePost(t *testing.T) {
 		name    string
 		pdb     postgreSQL.DBInterface
 		rdb     redis.RedisDBInterface
+		crq     createQueue.QueueCreateInterface
 		param   models.Post
 		want    *models.Post
 		wantErr string
@@ -182,6 +201,7 @@ func TestWriteServ_UpdatePost(t *testing.T) {
 			name:    "Everything good",
 			pdb:     postgeSQLDB,
 			rdb:     redisDB,
+			crq:     cq,
 			param:   p1,
 			want:    &p1,
 			wantErr: "",
@@ -190,6 +210,7 @@ func TestWriteServ_UpdatePost(t *testing.T) {
 			name:    "no users in postgreSQL",
 			pdb:     postgeSQLDB2,
 			rdb:     redisDB,
+			crq:     cq,
 			param:   models.Post{},
 			want:    nil,
 			wantErr: "couldn't find post",
@@ -197,7 +218,7 @@ func TestWriteServ_UpdatePost(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			ws := NewWriteServ(tc.pdb, tc.rdb)
+			ws := NewWriteServ(tc.pdb, tc.rdb, tc.crq)
 			got, err := ws.UpdatePost(tc.param)
 			if (err != nil) && (err.Error() != tc.wantErr) {
 				t.Errorf("error = %v, wantErr = %v", err.Error(), tc.wantErr)
@@ -211,6 +232,8 @@ func TestWriteServ_UpdatePost(t *testing.T) {
 func TestWriteServ_DeleteUser(t *testing.T) {
 	postgeSQLDB := new(mock2.DBInterface)
 	redisDB := new(mock2.RedisDBInterface)
+	cq := new(mock2.QueueCreateInterface)
+	cq.On("QueueCreateWrite", mock.Anything).Return(nil)
 
 	u1 := "00000000-0000-0000-0000-000000000000"
 	postgeSQLDB.On("DeleteUser", u1).Return(nil)
@@ -223,6 +246,7 @@ func TestWriteServ_DeleteUser(t *testing.T) {
 		name    string
 		pdb     postgreSQL.DBInterface
 		rdb     redis.RedisDBInterface
+		crq     createQueue.QueueCreateInterface
 		param   string
 		wantErr string
 	}{
@@ -230,6 +254,7 @@ func TestWriteServ_DeleteUser(t *testing.T) {
 			name:    "Everything good",
 			pdb:     postgeSQLDB,
 			rdb:     redisDB,
+			crq:     cq,
 			param:   u1,
 			wantErr: "",
 		},
@@ -237,13 +262,14 @@ func TestWriteServ_DeleteUser(t *testing.T) {
 			name:    "no users in postgreSQL",
 			pdb:     postgeSQLDB2,
 			rdb:     redisDB,
+			crq:     cq,
 			param:   u1,
 			wantErr: "couldn't delete user",
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			ws := NewWriteServ(tc.pdb, tc.rdb)
+			ws := NewWriteServ(tc.pdb, tc.rdb, tc.crq)
 			err := ws.DeleteUser(tc.param)
 			if (err != nil) && (err.Error() != tc.wantErr) {
 				t.Errorf("error = %v, wantErr = %v", err.Error(), tc.wantErr)
@@ -256,6 +282,8 @@ func TestWriteServ_DeleteUser(t *testing.T) {
 func TestWriteServ_DeletePost(t *testing.T) {
 	postgeSQLDB := new(mock2.DBInterface)
 	redisDB := new(mock2.RedisDBInterface)
+	cq := new(mock2.QueueCreateInterface)
+	cq.On("QueueCreateWrite", mock.Anything).Return(nil)
 
 	p1 := "00000000-0000-0000-0000-000000000000"
 	//p := models.Post{ID: "00000000-0000-0000-	0000-000000000000", UserID: "00000000-0000-0000-0000-000000000000", Title: "asd", Message: "dsa"}
@@ -273,6 +301,7 @@ func TestWriteServ_DeletePost(t *testing.T) {
 		name    string
 		pdb     postgreSQL.DBInterface
 		rdb     redis.RedisDBInterface
+		crq     createQueue.QueueCreateInterface
 		param   string
 		want    *models.Post
 		wantErr string
@@ -281,6 +310,7 @@ func TestWriteServ_DeletePost(t *testing.T) {
 			name:    "Everything good",
 			pdb:     postgeSQLDB,
 			rdb:     redisDB,
+			crq:     cq,
 			param:   p1,
 			wantErr: "",
 		},
@@ -288,6 +318,7 @@ func TestWriteServ_DeletePost(t *testing.T) {
 			name:    "no users in postgreSQL",
 			pdb:     postgeSQLDB2,
 			rdb:     redisDB,
+			crq:     cq,
 			param:   p1,
 			want:    nil,
 			wantErr: "user doesn't exist",
@@ -296,6 +327,7 @@ func TestWriteServ_DeletePost(t *testing.T) {
 			name:    "incorrect id",
 			pdb:     postgeSQLDB2,
 			rdb:     redisDB,
+			crq:     cq,
 			param:   "00000000-0000-0000-0000-00000000000",
 			want:    nil,
 			wantErr: "service: couldn't parse id",
@@ -303,7 +335,7 @@ func TestWriteServ_DeletePost(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			ws := NewWriteServ(tc.pdb, tc.rdb)
+			ws := NewWriteServ(tc.pdb, tc.rdb, tc.crq)
 			err := ws.DeletePost(tc.param)
 			if (err != nil) && (err.Error() != tc.wantErr) {
 				t.Errorf("error = %v, wantErr = %v", err.Error(), tc.wantErr)
@@ -316,6 +348,8 @@ func TestWriteServ_DeletePost(t *testing.T) {
 func TestWriteServ_GetPost(t *testing.T) {
 	postgeSQLDB := new(mock2.DBInterface)
 	redisDB := new(mock2.RedisDBInterface)
+	cq := new(mock2.QueueCreateInterface)
+	cq.On("QueueCreateWrite", mock.Anything).Return(nil)
 
 	p1 := "00000000-0000-0000-0000-000000000000"
 	pp := models.PostRead{ID: "00000000-0000-0000-0000-000000000000", Title: "asd", Message: "dsa"}
@@ -332,6 +366,7 @@ func TestWriteServ_GetPost(t *testing.T) {
 		name    string
 		pdb     postgreSQL.DBInterface
 		rdb     redis.RedisDBInterface
+		crq     createQueue.QueueCreateInterface
 		param   string
 		want    *models.Post
 		wantErr string
@@ -340,6 +375,7 @@ func TestWriteServ_GetPost(t *testing.T) {
 			name:    "Everything good",
 			pdb:     postgeSQLDB,
 			rdb:     redisDB,
+			crq:     cq,
 			param:   p1,
 			want:    &post,
 			wantErr: "",
@@ -348,6 +384,7 @@ func TestWriteServ_GetPost(t *testing.T) {
 			name:    "no users in postgreSQL",
 			pdb:     postgeSQLDB,
 			rdb:     redisDB,
+			crq:     cq,
 			param:   p2,
 			want:    nil,
 			wantErr: "service: couldn't parse id",
@@ -356,6 +393,7 @@ func TestWriteServ_GetPost(t *testing.T) {
 			name:    "no users in postgreSQL",
 			pdb:     postgeSQLDB2,
 			rdb:     redisDB,
+			crq:     cq,
 			param:   p1,
 			want:    nil,
 			wantErr: "user doesn't exist",
@@ -363,7 +401,7 @@ func TestWriteServ_GetPost(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			ws := NewWriteServ(tc.pdb, tc.rdb)
+			ws := NewWriteServ(tc.pdb, tc.rdb, tc.crq)
 			got, err := ws.GetPost(tc.param)
 			if (err != nil) && (err.Error() != tc.wantErr) {
 				t.Errorf("error = %v, wantErr = %v", err.Error(), tc.wantErr)

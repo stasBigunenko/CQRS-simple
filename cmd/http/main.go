@@ -3,6 +3,7 @@ package main
 import (
 	"CQRS-simple/cmd/http/myConfig"
 	"CQRS-simple/pkg/handlers"
+	createQueue2 "CQRS-simple/pkg/rabbitMQ/createQueue"
 	"CQRS-simple/pkg/services/readServ"
 	"CQRS-simple/pkg/storage/postgreSQL"
 	"CQRS-simple/pkg/storage/redis"
@@ -30,8 +31,11 @@ func main() {
 
 	// interface for read functions
 	readServ := readServ.NewReadServ(db, storage)
+
+	createQueue := createQueue2.CreateQueue{}
+
 	// create handler
-	userRoutes := handlers.NewHandler(&readServ)
+	userRoutes := handlers.NewHandler(&readServ, &createQueue)
 
 	r := mux.NewRouter()
 

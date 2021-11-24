@@ -3,6 +3,7 @@ package handlers
 import (
 	mock2 "CQRS-simple/pkg/mock"
 	"CQRS-simple/pkg/models"
+	"CQRS-simple/pkg/rabbitMQ/createQueue"
 	"CQRS-simple/pkg/services/readServ"
 	"errors"
 	"github.com/gorilla/mux"
@@ -16,10 +17,14 @@ import (
 
 func TestUserHandler_CreateUser(t *testing.T) {
 	r := new(mock2.ReadServInterface)
+	cq := new(mock2.QueueCreateInterface)
+
+	cq.On("QueueCreateWrite", mock.Anything).Return(nil)
 
 	tests := []struct {
 		name       string
 		rsi        readServ.ReadServInterface
+		crq        createQueue.QueueCreateInterface
 		method     string
 		url        string
 		body       string
@@ -28,6 +33,7 @@ func TestUserHandler_CreateUser(t *testing.T) {
 		{
 			name:       "POST user Everything ok",
 			rsi:        r,
+			crq:        cq,
 			method:     "POST",
 			url:        "localhost:8080/create",
 			body:       `{"name":"asd","Age":12}`,
@@ -36,6 +42,7 @@ func TestUserHandler_CreateUser(t *testing.T) {
 		{
 			name:       "Get wrong method",
 			rsi:        r,
+			crq:        cq,
 			method:     "Get",
 			url:        "localhost:8080/create",
 			body:       `{"name":"asd","Age":12}`,
@@ -44,6 +51,7 @@ func TestUserHandler_CreateUser(t *testing.T) {
 		{
 			name:       "wrong body",
 			rsi:        r,
+			crq:        cq,
 			method:     "POST",
 			url:        "localhost:8080/create",
 			body:       "1111",
@@ -52,6 +60,7 @@ func TestUserHandler_CreateUser(t *testing.T) {
 		{
 			name:       "not included name",
 			rsi:        r,
+			crq:        cq,
 			method:     "POST",
 			url:        "localhost:8080/create",
 			body:       `{"name":"asd"}`,
@@ -60,7 +69,7 @@ func TestUserHandler_CreateUser(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			h := NewHandler(tc.rsi)
+			h := NewHandler(tc.rsi, tc.crq)
 			req, err := http.NewRequest(tc.method, tc.url, strings.NewReader(tc.body))
 			if err != nil {
 				t.Fatalf("something goes wrong %v", err)
@@ -78,10 +87,14 @@ func TestUserHandler_CreateUser(t *testing.T) {
 
 func TestUserHandler_CreatePost(t *testing.T) {
 	r := new(mock2.ReadServInterface)
+	cq := new(mock2.QueueCreateInterface)
+
+	cq.On("QueueCreateWrite", mock.Anything).Return(nil)
 
 	tests := []struct {
 		name       string
 		rsi        readServ.ReadServInterface
+		crq        createQueue.QueueCreateInterface
 		method     string
 		url        string
 		body       string
@@ -91,6 +104,7 @@ func TestUserHandler_CreatePost(t *testing.T) {
 		{
 			name:   "POST post Everything ok",
 			rsi:    r,
+			crq:    cq,
 			method: "POST",
 			url:    "http://localhost:8080/post/{id}/create",
 			body:   `{"title":"asd","message":"das"}`,
@@ -102,6 +116,7 @@ func TestUserHandler_CreatePost(t *testing.T) {
 		{
 			name:   "Get wrong method",
 			rsi:    r,
+			crq:    cq,
 			method: "Get",
 			url:    "http://localhost:8080/post/{id}/create",
 			body:   `{"title":"asd","message":"das"}`,
@@ -113,6 +128,7 @@ func TestUserHandler_CreatePost(t *testing.T) {
 		{
 			name:   "wrong body model",
 			rsi:    r,
+			crq:    cq,
 			method: "POST",
 			url:    "http://localhost:8080/post/{id}/create",
 			body:   `1111`,
@@ -124,6 +140,7 @@ func TestUserHandler_CreatePost(t *testing.T) {
 		{
 			name:   "wrong body model (empty)",
 			rsi:    r,
+			crq:    cq,
 			method: "POST",
 			url:    "http://localhost:8080/post/{id}/create",
 			body:   `{"message":"das"}`,
@@ -135,6 +152,7 @@ func TestUserHandler_CreatePost(t *testing.T) {
 		{
 			name:   "wrong id",
 			rsi:    r,
+			crq:    cq,
 			method: "POST",
 			url:    "http://localhost:8080/post/{id}/create",
 			body:   `{"message":"das"}`,
@@ -146,7 +164,7 @@ func TestUserHandler_CreatePost(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			h := NewHandler(tc.rsi)
+			h := NewHandler(tc.rsi, tc.crq)
 			req, err := http.NewRequest(tc.method, tc.url, strings.NewReader(tc.body))
 			if err != nil {
 				t.Fatalf("something goes wrong %v", err)
@@ -167,10 +185,14 @@ func TestUserHandler_CreatePost(t *testing.T) {
 
 func TestUserHandler_UpdateUser(t *testing.T) {
 	r := new(mock2.ReadServInterface)
+	cq := new(mock2.QueueCreateInterface)
+
+	cq.On("QueueCreateWrite", mock.Anything).Return(nil)
 
 	tests := []struct {
 		name       string
 		rsi        readServ.ReadServInterface
+		crq        createQueue.QueueCreateInterface
 		method     string
 		url        string
 		body       string
@@ -180,6 +202,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		{
 			name:   "PUT user Everything ok",
 			rsi:    r,
+			crq:    cq,
 			method: "PUT",
 			url:    "http://localhost:8080/update-user/00000000-0000-0000-0000-000000000000",
 			body:   `{"name":"asd","Age":12}`,
@@ -191,6 +214,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		{
 			name:   "GET wrong method",
 			rsi:    r,
+			crq:    cq,
 			method: "GET",
 			url:    "http://localhost:8080/update-user/00000000-0000-0000-0000-000000000000",
 			body:   `{"name":"asd","Age":12}`,
@@ -202,6 +226,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		{
 			name:   "PUT wrong body model",
 			rsi:    r,
+			crq:    cq,
 			method: "PUT",
 			url:    "http://localhost:8080/update-user/00000000-0000-0000-0000-000000000000",
 			body:   `{"1221","Age":12}`,
@@ -213,6 +238,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		{
 			name:   "PUT wrong body model (something missing)",
 			rsi:    r,
+			crq:    cq,
 			method: "PUT",
 			url:    "http://localhost:8080/update-user/00000000-0000-0000-0000-000000000000",
 			body:   `{"Age":0}`,
@@ -224,7 +250,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			h := NewHandler(tc.rsi)
+			h := NewHandler(tc.rsi, tc.crq)
 			req, err := http.NewRequest(tc.method, tc.url, strings.NewReader(tc.body))
 			if err != nil {
 				t.Fatalf("something goes wrong %v", err)
@@ -245,10 +271,14 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 
 func TestUserHandler_UpdatePost(t *testing.T) {
 	r := new(mock2.ReadServInterface)
+	cq := new(mock2.QueueCreateInterface)
+
+	cq.On("QueueCreateWrite", mock.Anything).Return(nil)
 
 	tests := []struct {
 		name       string
 		rsi        readServ.ReadServInterface
+		crq        createQueue.QueueCreateInterface
 		method     string
 		url        string
 		body       string
@@ -258,6 +288,7 @@ func TestUserHandler_UpdatePost(t *testing.T) {
 		{
 			name:   "PUT post Everything ok",
 			rsi:    r,
+			crq:    cq,
 			method: "PUT",
 			url:    "http://localhost:8080/update-user/00000000-0000-0000-0000-000000000000",
 			body:   `{"title":"asd","message":"12"}`,
@@ -269,6 +300,7 @@ func TestUserHandler_UpdatePost(t *testing.T) {
 		{
 			name:   "GET wrong method",
 			rsi:    r,
+			crq:    cq,
 			method: "GET",
 			url:    "http://localhost:8080/update-user/00000000-0000-0000-0000-000000000000",
 			body:   `{"title":"asd","message":"12"}`,
@@ -280,6 +312,7 @@ func TestUserHandler_UpdatePost(t *testing.T) {
 		{
 			name:   "PUT wrong body model",
 			rsi:    r,
+			crq:    cq,
 			method: "PUT",
 			url:    "http://localhost:8080/update-user/00000000-0000-0000-0000-000000000000",
 			body:   `{""Age":12}`,
@@ -291,6 +324,7 @@ func TestUserHandler_UpdatePost(t *testing.T) {
 		{
 			name:   "PUT wrong body model",
 			rsi:    r,
+			crq:    cq,
 			method: "PUT",
 			url:    "http://localhost:8080/update-user/00000000-0000-0000-0000-000000000000",
 			body:   `{"Message":""}`,
@@ -302,7 +336,7 @@ func TestUserHandler_UpdatePost(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			h := NewHandler(tc.rsi)
+			h := NewHandler(tc.rsi, tc.crq)
 			req, err := http.NewRequest(tc.method, tc.url, strings.NewReader(tc.body))
 			if err != nil {
 				t.Fatalf("something goes wrong %v", err)
@@ -323,10 +357,13 @@ func TestUserHandler_UpdatePost(t *testing.T) {
 
 func TestUserHandler_DeleteUser(t *testing.T) {
 	r := new(mock2.ReadServInterface)
+	cq := new(mock2.QueueCreateInterface)
+	cq.On("QueueCreateWrite", mock.Anything).Return(nil)
 
 	tests := []struct {
 		name       string
 		rsi        readServ.ReadServInterface
+		crq        createQueue.QueueCreateInterface
 		method     string
 		url        string
 		vars       map[string]string
@@ -335,6 +372,7 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 		{
 			name:   "DELETE user Everything ok",
 			rsi:    r,
+			crq:    cq,
 			method: "DELETE",
 			url:    "http://localhost:8080/delete-user/00000000-0000-0000-0000-000000000000",
 			vars: map[string]string{
@@ -345,6 +383,7 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 		{
 			name:   "GET wrong method",
 			rsi:    r,
+			crq:    cq,
 			method: "GET",
 			url:    "http://localhost:8080/delete-user/00000000-0000-0000-0000-000000000000",
 			vars: map[string]string{
@@ -355,7 +394,7 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			h := NewHandler(tc.rsi)
+			h := NewHandler(tc.rsi, tc.crq)
 			req, err := http.NewRequest(tc.method, tc.url, strings.NewReader(""))
 			if err != nil {
 				t.Fatalf("something goes wrong %v", err)
@@ -376,10 +415,13 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 
 func TestUserHandler_DeletePost(t *testing.T) {
 	r := new(mock2.ReadServInterface)
+	cq := new(mock2.QueueCreateInterface)
+	cq.On("QueueCreateWrite", mock.Anything).Return(nil)
 
 	tests := []struct {
 		name       string
 		rsi        readServ.ReadServInterface
+		crq        createQueue.QueueCreateInterface
 		method     string
 		url        string
 		vars       map[string]string
@@ -388,6 +430,7 @@ func TestUserHandler_DeletePost(t *testing.T) {
 		{
 			name:   "DELETE post Everything ok",
 			rsi:    r,
+			crq:    cq,
 			method: "DELETE",
 			url:    "http://localhost:8080/delete-post/00000000-0000-0000-0000-000000000000",
 			vars: map[string]string{
@@ -398,6 +441,7 @@ func TestUserHandler_DeletePost(t *testing.T) {
 		{
 			name:   "GET wrong method",
 			rsi:    r,
+			crq:    cq,
 			method: "GET",
 			url:    "http://localhost:8080/delete-post/00000000-0000-0000-0000-000000000000",
 			vars: map[string]string{
@@ -408,7 +452,7 @@ func TestUserHandler_DeletePost(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			h := NewHandler(tc.rsi)
+			h := NewHandler(tc.rsi, tc.crq)
 			req, err := http.NewRequest(tc.method, tc.url, strings.NewReader(""))
 			if err != nil {
 				t.Fatalf("something goes wrong %v", err)
@@ -429,6 +473,9 @@ func TestUserHandler_DeletePost(t *testing.T) {
 
 func TestUserHandler_GetUserPosts(t *testing.T) {
 	r := new(mock2.ReadServInterface)
+	cq := new(mock2.QueueCreateInterface)
+	cq.On("QueueCreateWrite", mock.Anything).Return(nil)
+
 	m := models.User{"00000000-0000-0000-0000-000000000000", "raz", 2}
 	p1 := models.PostRead{"00000000-0000-0000-0000-000000000000", "raz", "dva"}
 	p2 := models.PostRead{"00000000-0000-0000-0000-000000000001", "raz1", "dv1a"}
@@ -448,6 +495,7 @@ func TestUserHandler_GetUserPosts(t *testing.T) {
 	tests := []struct {
 		name       string
 		rsi        readServ.ReadServInterface
+		crq        createQueue.QueueCreateInterface
 		method     string
 		url        string
 		vars       map[string]string
@@ -456,6 +504,7 @@ func TestUserHandler_GetUserPosts(t *testing.T) {
 		{
 			name:   "GET usersPost Everything ok",
 			rsi:    r,
+			crq:    cq,
 			method: "GET",
 			url:    "http://localhost:8080/user-posts/00000000-0000-0000-0000-000000000000",
 			vars: map[string]string{
@@ -466,6 +515,7 @@ func TestUserHandler_GetUserPosts(t *testing.T) {
 		{
 			name:   "wrong method",
 			rsi:    r,
+			crq:    cq,
 			method: "PUT",
 			url:    "http://localhost:8080/user-posts/00000000-0000-0000-0000-000000000000",
 			vars: map[string]string{
@@ -476,6 +526,7 @@ func TestUserHandler_GetUserPosts(t *testing.T) {
 		{
 			name:   "GET usersPost Everything ok",
 			rsi:    r2,
+			crq:    cq,
 			method: "GET",
 			url:    "http://localhost:8080/user-posts/00000000-0000-0000-0000-000000000000",
 			vars: map[string]string{
@@ -486,7 +537,7 @@ func TestUserHandler_GetUserPosts(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			h := NewHandler(tc.rsi)
+			h := NewHandler(tc.rsi, tc.crq)
 			req, err := http.NewRequest(tc.method, tc.url, strings.NewReader(""))
 			if err != nil {
 				t.Fatalf("something goes wrong %v", err)
@@ -507,6 +558,9 @@ func TestUserHandler_GetUserPosts(t *testing.T) {
 
 func TestUserHandler_GetAllUsers(t *testing.T) {
 	r := new(mock2.ReadServInterface)
+	cq := new(mock2.QueueCreateInterface)
+	cq.On("QueueCreateWrite", mock.Anything).Return(nil)
+
 	m := models.User{"00000000-0000-0000-0000-000000000000", "raz", 2}
 	m1 := models.User{"00000000-0000-0000-0000-000000000001", "raz", 2}
 
@@ -522,6 +576,7 @@ func TestUserHandler_GetAllUsers(t *testing.T) {
 	tests := []struct {
 		name       string
 		rsi        readServ.ReadServInterface
+		crq        createQueue.QueueCreateInterface
 		method     string
 		url        string
 		vars       map[string]string
@@ -530,6 +585,7 @@ func TestUserHandler_GetAllUsers(t *testing.T) {
 		{
 			name:   "GET usersPost Everything ok",
 			rsi:    r,
+			crq:    cq,
 			method: "GET",
 			url:    "http://localhost:8080/user-posts/00000000-0000-0000-0000-000000000000",
 			vars: map[string]string{
@@ -540,6 +596,7 @@ func TestUserHandler_GetAllUsers(t *testing.T) {
 		{
 			name:   "Wrong method",
 			rsi:    r,
+			crq:    cq,
 			method: "POST",
 			url:    "http://localhost:8080/user-posts/00000000-0000-0000-0000-000000000000",
 			vars: map[string]string{
@@ -550,6 +607,7 @@ func TestUserHandler_GetAllUsers(t *testing.T) {
 		{
 			name:   "Wrong function",
 			rsi:    r2,
+			crq:    cq,
 			method: "GET",
 			url:    "http://localhost:8080/user-posts/00000000-0000-0000-0000-000000000000",
 			vars: map[string]string{
@@ -560,7 +618,7 @@ func TestUserHandler_GetAllUsers(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			h := NewHandler(tc.rsi)
+			h := NewHandler(tc.rsi, tc.crq)
 			req, err := http.NewRequest(tc.method, tc.url, strings.NewReader(""))
 			if err != nil {
 				t.Fatalf("something goes wrong %v", err)

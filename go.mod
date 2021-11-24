@@ -3,11 +3,12 @@ module CQRS-simple
 go 1.17
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alicebob/miniredis v2.5.0+incompatible
-	github.com/elliotchance/redismock v1.5.3
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
+	github.com/jmoiron/sqlx v1.3.4
 	github.com/lib/pq v1.10.4
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.7.0
