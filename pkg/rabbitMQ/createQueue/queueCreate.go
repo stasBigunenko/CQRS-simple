@@ -95,3 +95,5 @@ func (cq *CreateQueue) QueueCreateCache(up models.Cud) error {
 }
 
 type CreateQueue struct{}
+
+//type CreateQueueCache struct{}

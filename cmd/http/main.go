@@ -32,10 +32,10 @@ func main() {
 	// interface for read functions
 	readServ := readServ.NewReadServ(db, storage)
 
-	createQueue := createQueue2.CreateQueue{}
+	createQueueWrite := createQueue2.CreateQueue{}
 
 	// create handler
-	userRoutes := handlers.NewHandler(&readServ, &createQueue)
+	userRoutes := handlers.NewHandler(&readServ, &createQueueWrite)
 
 	r := mux.NewRouter()
 

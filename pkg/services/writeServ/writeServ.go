@@ -18,8 +18,9 @@ type WriteServ struct {
 
 func NewWriteServ(p postgreSQL.DBInterface, r redis.RedisDBInterface, cq createQueue.QueueCreateInterface) WriteServ {
 	return WriteServ{
-		postgresDB: p,
-		redisDB:    r,
+		postgresDB:  p,
+		redisDB:     r,
+		createQueue: cq,
 	}
 }
 
