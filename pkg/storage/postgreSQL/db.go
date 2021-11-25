@@ -41,7 +41,7 @@ func (pdb *PostgresDB) CreateUser(u models.User) (models.User, error) {
 	_, err := pdb.Pdb.Exec(
 		`INSERT INTO users (userID, name, age) VALUES ($1, $2, $3)`, idStr, u.Name, u.Age)
 	if err != nil {
-		return models.User{}, errors.New("couldn't create user in database")
+		return models.User{}, err
 	}
 
 	u.ID = idStr

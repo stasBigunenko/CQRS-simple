@@ -4,50 +4,69 @@ import (
 	"CQRS-simple/pkg/models"
 	"github.com/DATA-DOG/go-sqlmock"
 	_ "github.com/lib/pq"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"log"
 	"testing"
 )
 
-//func TestPostgresDB_CreateUser2(t *testing.T) {
-//	// build DB Client mock
-//	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-//	if err != nil {
-//		t.Fatalf("an error '%s' was not expected when opening a stub database connection: %s", err, mock)
-//	}
-//	defer db.Close()
-//
-//	//mockedRow := sqlmock.NewRows([]string{"userID", "name", "age"}).AddRow("00000000-0000-0000-0000-000000000000", "name1", 10)
-//
-//	query := "INSERT INTO users \\(userID, name, age\\) VALUES \\(\\?, \\?, \\?\\)"
-//	prep := mock.ExpectPrepare(query)
-//	prep.ExpectExec().WithArgs("00000000-0000-0000-0000-000000000000", "name1", 10).
-//		WillReturnResult(sqlmock.NewResult(0, 1))
-//
-//	// describe expected behaviour
-//	//mock.ExpectBegin()
-//	//mock.ExpectExec(`INSERT INTO users (userID, name, age) VALUES ($1, $2, $3)`).
-//	//	WithArgs("00000000-0000-0000-0000-000000000000", "name1", 10).
-//	//	WillReturnResult(sqlmock.NewResult(0, 1))
-//	//mock.ExpectCommit()
-//
-//	// make storage for test
-//	postgreSQL := &PostgresDB{Pdb: db}
-//
-//	err = postgreSQL.Pdb.Ping()
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//
-//	u := models.User{Name: "name1", Age: 10}
-//
-//	res ,err := postgreSQL.CreateUser(u)
-//
-//	require.NoError(t, err)
-//	require.NotNil(t, res)
-//	//assert.Equal(t, u.Name, res.Name)
-//	//assert.Equal(t, u.Age, res.Age)
-//}
+func TestPostgresDB_CreateUser2(t *testing.T) {
+	// build DB Client mock
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection: %s", err, mock)
+	}
+	defer db.Close()
+
+	mock.ExpectExec(`INSERT INTO users (userID, name, age) VALUES ($1, $2, $3)`).
+		WithArgs(sqlmock.AnyArg(), "name1", 10).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	postgreSQL := &PostgresDB{Pdb: db}
+
+	err = postgreSQL.Pdb.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	u := models.User{Name: "name1", Age: 10}
+
+	res, err := postgreSQL.CreateUser(u)
+
+	require.NoError(t, err)
+	require.NotNil(t, res)
+	assert.Equal(t, u.Name, res.Name)
+	assert.Equal(t, u.Age, res.Age)
+}
+
+func TestPostgresDB_CreatePost(t *testing.T) {
+	// build DB Client mock
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection: %s", err, mock)
+	}
+	defer db.Close()
+
+	mock.ExpectExec("INSERT INTO posts (postID, userID, title, message) VALUES ($1, $2, $3, $4)").
+		WithArgs(sqlmock.AnyArg(), "00000000-0000-0000-0000-000000000000", "title1", "messqge1").
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	postgreSQL := &PostgresDB{Pdb: db}
+
+	err = postgreSQL.Pdb.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	p := models.Post{UserID: "00000000-0000-0000-0000-000000000000", Title: "title1", Message: "messqge1"}
+
+	res, err := postgreSQL.CreatePost(p)
+
+	require.NoError(t, err)
+	require.NotNil(t, res)
+	assert.Equal(t, p.Title, res.Title)
+	assert.Equal(t, p.Message, res.Message)
+}
 
 func TestPostgresDB_GetPosts2(t *testing.T) {
 	// build DB Client mock
